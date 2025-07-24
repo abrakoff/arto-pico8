@@ -8,22 +8,22 @@ function init_controls()
 
     controls = {}
     local x_offset = 1
-    add_control_button(pos(x_offset,68), default_control_draw(50), step)
+    add_control_button(pos(x_offset,68), default_control_draw(16), step)
     x_offset += 10
     add_control_button(pos(x_offset,68), draw_play_pause, play_pause)
     x_offset += 10
-    add_control_button(pos(x_offset,68), default_control_draw(52), increase_speed, decrease_speed)
+    add_control_button(pos(x_offset,68), default_control_draw(18), increase_speed, decrease_speed)
     x_offset += 10
-    add_control_button(pos(x_offset,68), default_control_draw(58), randomize_all_callback)
+    add_control_button(pos(x_offset,68), default_control_draw(23), randomize_all_callback)
     x_offset += 57 
 
-    add_control_button(pos(x_offset,68), default_control_draw(54), previous_level)
+    add_control_button(pos(x_offset,68), default_control_draw(20), previous_level)
     x_offset += 10
     add_control_button(pos(x_offset,68), draw_level_number)
     x_offset += 11
-    add_control_button(pos(x_offset,68), default_control_draw(56), next_level)
+    add_control_button(pos(x_offset,68), default_control_draw(22), next_level)
     x_offset += 10
-    add_control_button(pos(x_offset,68), default_control_draw(55), reset_level)
+    add_control_button(pos(x_offset,68), default_control_draw(21), reset_level)
 end
 
 function add_control_button(p, draw_func, left_func, right_func)
@@ -38,9 +38,9 @@ end
 
 function draw_play_pause(control)
     if is_paused then
-        spr(51, control.p.x, control.p.y)
+        spr(17, control.p.x, control.p.y)
     else
-        spr(53, control.p.x, control.p.y)
+        spr(19, control.p.x, control.p.y)
     end
 end
 

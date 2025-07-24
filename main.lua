@@ -6,8 +6,9 @@ function _init()
     init_brains()
     init_levels()
     init_controls()
-    anim_clock = 0
+    anim_clock = 0 -- runs from 0 to 127
     printh("_init() finished","log")
+    debug_strings={"","","","",""}
 end
 
 function _update60()
@@ -47,14 +48,30 @@ function _draw()
     draw_brains()
     draw_controls()
     draw_mouse()
+    draw_debug()
 end
 
-function debug(str)
-    if true then
-        cls()
-        print(str,1,1,0)
-        print(str,0,0,7)
-        stop()
-        cls()
+function draw_debug_line(str, line)
+    rectfill(0, 6*(line-1), #str * 4, 6*line, 0)
+    print(str,0,6*(line-1),7)
+end
+
+function draw_debug()
+    local line = 1
+    for i = 1,#debug_strings do
+        if #debug_strings[i] > 0 then
+            draw_debug_line(debug_strings[i], line)
+            line+=1
+        end
     end
+end
+
+function debug(str, i)
+    i = i or 1
+    debug_strings[i] = tostr(str)
+end
+
+function debug_now(str)
+    draw_debug_line(tostr(str),1)
+    stop()
 end

@@ -1,44 +1,52 @@
 --scaled_maps
 function init_levels()
-    default_sprite=39
-    target_sprite=24
+    default_sprite=8
+    wall_sprite=24
+    target_sprite=0
 
     level_init_data = {
-        -- 8 small
+        -- 16 small
         {pos(0,0), 8}, {pos(16,0), 8}, {pos(32,0), 8}, {pos(48,0), 8},
         {pos(0,8), 8}, {pos(16,8), 8}, {pos(32,8), 8}, {pos(48,8), 8},
-        -- 6 medium
-        {pos(0,16), 4}, {pos(32,16), 4},
-        {pos(0,32), 4}, {pos(32,32), 4},
-        {pos(0,48), 4}, {pos(32,48), 4},
-        -- 2 large
-        {pos(64,0), 2},
-        {pos(64,32), 2}
+        {pos(0,16), 8}, {pos(16,16), 8}, {pos(32,16), 8}, {pos(48,16), 8},
+        {pos(0,24), 8}, {pos(16,24), 8}, {pos(32,24), 8}, {pos(48,24), 8},
+        -- 4 medium
+        {pos(64,0), 4},  {pos(96,0), 4},
+        {pos(64,16), 4}, {pos(96,16), 4}
+        -- 0 large
+        --{pos(64,0), 2},
+        --{pos(64,32), 2}
     }
     level_titles = {
+        -- small
         {"move green?","... means move right"},
         {"move green, paint red?",""},
-        {"move green, paint red, ...", "... and remember yellow?"},
-        {"move blue (down) on blue!", ""},
+        {"move green, paint red, ...", "... and feel blue?"},
+        {"move blue (down) on yellow!", ""},
         {"side step the wall",""},
-        {"i am stuck in a loop! save me!", ""},
+        {"i am stuck in a loop!", "save me!"},
+        {"rainbow road",""},
+        {"the floor is lava","... or orange paint"},
+        {"side step the wall?","...with feelings"},
+        {"i love red!","paint all red"},
+        {"i hate red!","paint the fence green"},
         {"",""},
         {"",""},
         {"",""},
         {"",""},
         {"",""},
+        -- medium
+        {"the maze",""},
         {"",""},
-        {"",""},
+        {"the real maze",""},
         {"the yellow brick road",""},
-        {"",""},
-        {"",""}
     }
 
     levels = {}
 
     for l=1,#level_init_data do add(levels, load_level(level_init_data[l])) end
     level_idx = -1 -- should get reset
-    init_level(14)
+    init_level(19)
 end
 
 function load_level(init_data)
@@ -66,8 +74,8 @@ function load_level(init_data)
 
     -- PROCESS MAP DATA
     -- default source and target
-    local source = pos(2,2)
-    local target = pos(width-1,height-1)
+    local source = pos(4,4)
+    local target = pos(width-3,height-3)
     local mem = 0
 
     for r = 1, height do
@@ -75,18 +83,25 @@ function load_level(init_data)
             local sprite_pos = pos(map_pos.x + c - 1, map_pos.y + r - 1)
             local sprite_idx = mget(sprite_pos.x, sprite_pos.y)
 
-            -- where the robot starts
-            if 16 <= sprite_idx and sprite_idx <= 23 then 
-                source = pos(c,r)
-                mset(sprite_pos.x, sprite_pos.y, default_sprite) -- swap to solid color default
-                mem = sprite_to_idx(sprite_idx+16)
+            -- determine where the robot starts
+            if is_color_sprite(sprite_idx) then 
+                if r==1 then source.x = c end
+                if c==1 then source.y = r end
+                if r==1 or c==1 then
+                    mset(sprite_pos.x, sprite_pos.y, wall_sprite) -- swap to solid color default
+                    mem = sprite_to_idx(sprite_idx)
+                end
             end
-            -- where the robot wants to get
+
+            -- determine where the robot wants to get
             if sprite_idx == target_sprite then 
-                target = pos(c,r)
+                if r==height then target.x = c end
+                if c==width  then target.y = r end
+                mset(sprite_pos.x, sprite_pos.y, wall_sprite)
             end
+
             -- override helper sprites with correct value
-            if sprite_idx == 0 or sprite_idx == 24 then
+            if sprite_idx == 0 and (r != height and c != width)  then
                 mset(sprite_pos.x, sprite_pos.y, default_sprite)
             end
         end

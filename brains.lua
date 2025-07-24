@@ -2,7 +2,7 @@ function init_brains()
     -- positions on sprite sheet
     edit_idx=7 -- color to write for editting
 
-    brain_labels={"paint", "remember", "move"}
+    brain_labels={"paint", "feel", "move"}
 
     brain_offsets={{},{},{}} -- points to upper left corner of grid
     brain_boxes={{{},{},{},{},{},{},{},{}},
@@ -62,7 +62,9 @@ function draw_brains()
         local text_pos = pos(brain_offsets[b].x, brain_offsets[b].y+32+1)
         print(brain_labels[b], text_pos.x+1, text_pos.y+1, 0)
         print(brain_labels[b], text_pos.x, text_pos.y, 7)
-        if b==3 then spr(7,text_pos.x+24,text_pos.y-1)  end
+
+        -- extra move icon
+        if b==3 then spr(15,text_pos.x+24,text_pos.y-1)  end
 
         -- drawing headers
         for h=1,8 do
@@ -81,23 +83,15 @@ function draw_brains()
         end
 
         if level and robot then
-            -- indicate which thing activates
-            local indicator  = active_neuron()
-            local active_box = brain_boxes[b][indicator.y+1][indicator.x+1]
-            spr(
-                5,
-                active_box.l-2,
-                active_box.t-2
-            )
+            -- indicate which part of brain is activate
+            local active_box = brain_boxes[b][under_robot()+1][robot.mem+1]
+            draw_box(feather(active_box), 6)
         end
     end
 end
 
-function active_neuron()
-    -- debug(p_to_str(robot.p))
-    local floor=sprite_to_idx(get_level_sprite(robot.p))
-    -- debug(get_level_sprite(robot.p))
-    return pos(robot.mem,floor)
+function under_robot()
+    return sprite_to_idx(get_level_sprite(robot.p))
 end
 
 function change_brain_callback(b, pos)
@@ -157,17 +151,22 @@ function randomize_all_callback()
 end
 
 -- access brain data
-function get_brain_sprite_pos(b,p)
-    local x_shift = 8 * (level_idx - 1)
-    local y_shift = 40 + 8 * (b-1)
-    local sprite_pos = pos(x_shift+p.x, y_shift+p.y)
+function get_brain_sprite_pos(b, p)
+
+    local x_shift = 8 * ((level_idx - 1) % 16)
+    local y_shift = 16 + 8 * (b-1)
+    if level_idx > 16 then y_shift += 24 end
+
+    local sprite_pos = pos(x_shift + p.x, y_shift + p.y)
     return sprite_pos
 end
+
 function get_brain(b, p)
     local sprite_pos = get_brain_sprite_pos(b,p)
     local col = sget(sprite_pos.x,sprite_pos.y)
     return color_to_idx(col)
 end
+
 function set_brain(b, p, new)
     local sprite_pos = get_brain_sprite_pos(b,p)
     sset(sprite_pos.x, sprite_pos.y, idx_to_color(new))

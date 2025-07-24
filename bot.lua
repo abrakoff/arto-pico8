@@ -5,14 +5,14 @@ function update_robot()
         return
     end
     --where in the brain to look
-    local data_pos = active_neuron()
+    local data_pos = pos(robot.mem, under_robot())
     --writing
-    local write = get_brain(1,data_pos)
+    local write = get_brain(1, data_pos)
     write_to_level(robot.p, idx_to_sprite(write))
     --memory
-    robot.mem = get_brain(2,data_pos)
+    robot.mem = get_brain(2, data_pos)
     --movement
-    local move_idx = get_brain(3,data_pos)
+    local move_idx = get_brain(3, data_pos)
     robot.p = resolve_move(move_idx, robot.p)
 end
 
@@ -49,22 +49,36 @@ end
 
 function draw_robot()
     -- for sprite color remapping
-    local data_pos = active_neuron()
-    local mem_col = idx_to_color(data_pos.x)
-    local floor_col = idx_to_color(data_pos.y)
-    local write_col = idx_to_color(get_brain(1,data_pos))
+    local scale = level.scale
+    local dx = scale * (robot.p.x-1)
+    local dy = scale * (robot.p.y-1)
+
+    local mem_col   = idx_to_color(robot.mem)
+    local floor_col = idx_to_color(under_robot())
+    local data_pos  = pos(robot.mem, under_robot())
+    local write = get_brain(1,data_pos)
+
+    local write_col = idx_to_color(write)
+
+    -- movement indicator
+    local move_idx = get_brain(3, data_pos)
+    local next_pos = resolve_move(move_idx, robot.p)
+    local next_dx = scale * (next_pos.x-1)
+    local next_dy = scale * (next_pos.y-1)
+
+    --local move_col = idx_to_color(get_brain(3,data_pos))
+    --if flr((anim_clock % 32)/16) > 0 then move_col = 7 end
+
+    rect(next_dx+1, next_dy+1, next_dx+scale-2, next_dy+scale-2, 7)
 
     -- sprite robot
-    pal(10, floor_col) -- yellow 
-    pal(12, mem_col)   -- blue
-    pal(11, write_col) -- green
+    pal(10, floor_col) -- orig yellow 
+    pal(12, mem_col)   -- orig blue
+    pal(11, write_col) -- orig green
     palt(14,true)
     palt(0,false)
 
     -- robot on map 
-    local scale = level.scale
-    local dx = scale * (robot.p.x-1)
-    local dy = scale * (robot.p.y-1)
     if scale == 8 then
         sspr(104,0,8,8,dx,dy,8,8)
     elseif scale == 4 then
@@ -73,7 +87,7 @@ function draw_robot()
         sspr(108,8,2,2,dx,dy,2,2)
     end
 
-    -- robot between controls
+    -- robot standing between controls
     if robot_anim_frame == 1 then
         sspr(72,0,16,16,55,65,16,16)
     else
@@ -84,5 +98,6 @@ function draw_robot()
     pal()
     palt(14,false)
     palt(0,true)
+
 end
 

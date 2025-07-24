@@ -58,7 +58,9 @@ function draw_mouse()
     end
 
     -- show mouse
-    spr(48, mouse.p.x-2, mouse.p.y-2) 
-    circ(mouse.p.x, mouse.p.y, 1, idx_to_color(edit_idx))
+    local write_col = idx_to_color(edit_idx)
+    pal(11, write_col) -- orig green
+    sspr(109,11,3,5,mouse.p.x,mouse.p.y,3,5)
+    pal()
 end
 

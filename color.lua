@@ -10,31 +10,34 @@ function color_to_idx(col)
     return idx 
 end
 
+function is_color_sprite(sprite_idx)
+    return sprite_idx >= 1 and sprite_idx <= 8
+end
+
 function idx_to_color(idx)
     local colmap = {10,11,8,12,9,3,2,1}
     return colmap[idx+1]
 end
 
 function idx_to_sprite(idx)
-    return idx+32
+    return idx+1
 end
 
-function sprite_to_idx(s)
-    local idx = s-32
-    if idx < 0 or idx > 7 then
-        debug("tried to convert sprite "..s.."\n to brain index "..idx)
+function sprite_to_idx(sprite_idx)
+    if not is_color_sprite(sprite_idx) then
+        debug("tried to convert non-color sprite "..sprite_idx)
     end
-    return idx
+    return sprite_idx-1
 end
 
 function idx_to_move(idx)
     -- direction and amount
     -- left, right, up, down
     local move_map = {
-        {dir=0,a=1},
-        {dir=1,a=1},
-        {dir=2,a=1},
-        {dir=3,a=1},
+        {dir=0,a=1}, -- yellow / left
+        {dir=1,a=1}, -- green / right
+        {dir=2,a=1}, -- red / up
+        {dir=3,a=1}, -- blue / down
         {dir=0,a=2},
         {dir=1,a=2},
         {dir=2,a=2},
