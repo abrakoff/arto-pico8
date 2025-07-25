@@ -1,6 +1,6 @@
 function init_brains()
     -- positions on sprite sheet
-    edit_idx=7 -- color to write for editting
+    edit_idx=1 -- color to write for editting
 
     brain_labels={"paint", "feel", "move"}
 
@@ -15,9 +15,10 @@ function init_brains()
     hs = 4 -- header size
 
     for b=1,3 do
+
         brain_offsets[b]=pos((b-1)*44+6,88)
         local const_box = box(brain_offsets[b].x-hs-1, brain_offsets[b].y-hs-1, brain_offsets[b].x-2, brain_offsets[b].y-2)
-        add_clickable(const_box, change_brain_all_callback(b))
+        add_clickable(const_box, change_brain_all_callback(b), nil, "levels")
         add(brain_consters, const_box)
         for i=1,8 do     -- row
 
@@ -28,8 +29,8 @@ function init_brains()
             local row_box = box(brain_offsets[b].x-hs-1, header_pos.y,
                                 brain_offsets[b].x-2, header_pos.y+3)
             add(brain_headers[b], {row=row_box, col=col_box})
-            add_clickable(col_box, change_brain_col_callback(b,i-1), change_edit_callback(i-1))
-            add_clickable(row_box, change_brain_row_callback(b,i-1), change_edit_callback(i-1))
+            add_clickable(col_box, change_brain_col_callback(b,i-1), change_edit_callback(i-1), "levels")
+            add_clickable(row_box, change_brain_row_callback(b,i-1), change_edit_callback(i-1), "levels")
 
             -- grid
             for j=1,8 do -- col
@@ -44,7 +45,8 @@ function init_brains()
                 add_clickable(
                     d_box,
                     change_brain_callback(b, pos(j-1,i-1)),
-                    change_edit_from_brain_callback(b, pos(j-1,i-1))
+                    change_edit_from_brain_callback(b, pos(j-1,i-1)),
+                    "levels"
                 )
                 add(brain_boxes[b][i],d_box)
             end
@@ -153,9 +155,12 @@ end
 -- access brain data
 function get_brain_sprite_pos(b, p)
 
-    local x_shift = 8 * ((level_idx - 1) % 16)
+    local x_shift = 8 * (level_idx - 1)
     local y_shift = 16 + 8 * (b-1)
-    if level_idx > 16 then y_shift += 24 end
+    if level_idx > 10 then 
+        x_shift -= 80
+        y_shift += 24 
+    end
 
     local sprite_pos = pos(x_shift + p.x, y_shift + p.y)
     return sprite_pos

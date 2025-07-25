@@ -1,5 +1,4 @@
 --mouse
-
 function init_mouse()
     poke(0x5f2d, 1)
     clickables={}
@@ -11,8 +10,8 @@ function init_mouse()
     update_mouse_table()
 end
 
-function add_clickable(p_box, p_lfunc, p_rfunc)
-    add(clickables,{box=p_box, lfunc=p_lfunc, rfunc=p_rfunc, is_hover=false})
+function add_clickable(p_box, p_lfunc, p_rfunc, state)
+    add(clickables,{box=p_box, lfunc=p_lfunc, rfunc=p_rfunc, is_hover=false, state=state})
 end
 
 function update_mouse_table()
@@ -26,33 +25,40 @@ function update_mouse_table()
 
     mouse.down_l = down_l
     mouse.down_r = down_r
-    mouse.down = down_l or down_r
+    mouse.down   = down_l or down_r
 end
 
 function update_mouse()
     update_mouse_table()
+    local functions_to_call = {}
     for c in all(clickables) do
         local is_hover = p_in_box(mouse.p, c.box)
-        if is_hover then 
-            if mouse.press_l or (mouse.down_l and not c.is_hover) then 
-                if c.lfunc then c.lfunc() end
-            end
-            if mouse.press_r or (mouse.down_r and not c.is_hover) then 
-                if c.rfunc then c.rfunc() end
+        if c.state == state then
+            if is_hover then 
+                if mouse.press_l or (mouse.down_l and not c.is_hover) then 
+                    if c.lfunc then add(functions_to_call, c.lfunc) end
+                end
+                if mouse.press_r or (mouse.down_r and not c.is_hover) then 
+                    if c.rfunc then add(functions_to_call, c.rfunc) end
+                end
             end
         end
         c.is_hover = is_hover
+    end
+    for f in all(functions_to_call) do
+        f()
     end
 end
 
 function draw_mouse()
     for c in all(clickables) do
-        -- draw_box(c.box,12) -- debug
-        if p_in_box(mouse.p, c.box) then
-            if mouse.down then
-                draw_box(feather(c.box),6)
-            else
-                draw_box(feather(c.box),7)
+        if c.state == state then
+            if p_in_box(mouse.p, c.box) then
+                if mouse.down then
+                    draw_box(feather(c.box),6)
+                else
+                    draw_box(feather(c.box),7)
+                end
             end
         end
     end

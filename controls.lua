@@ -1,10 +1,10 @@
 -- controls
 function init_controls()
-    update_clock = 0
-    sim_speeds = {64,32,16,8,4,2,1,0.5,0.25}
+    update_logic_clock = 0
+    sim_speeds = {32,16,8,4,2,1,1/2,1/4,1/8,1/16,1/32}
     is_paused  = true
     step_counter  = 0
-    sim_speed_idx = 3
+    sim_speed_idx = 1 
 
     controls = {}
     local x_offset = 1
@@ -14,7 +14,7 @@ function init_controls()
     x_offset += 10
     add_control_button(pos(x_offset,68), default_control_draw(18), increase_speed, decrease_speed)
     x_offset += 10
-    add_control_button(pos(x_offset,68), default_control_draw(23), randomize_all_callback)
+    add_control_button(pos(x_offset,68), default_control_draw(21), reset_level)
     x_offset += 57 
 
     add_control_button(pos(x_offset,68), default_control_draw(20), previous_level)
@@ -23,12 +23,12 @@ function init_controls()
     x_offset += 11
     add_control_button(pos(x_offset,68), default_control_draw(22), next_level)
     x_offset += 10
-    add_control_button(pos(x_offset,68), default_control_draw(21), reset_level)
+    add_control_button(pos(x_offset,68), default_control_draw(23), randomize_all_callback)
 end
 
 function add_control_button(p, draw_func, left_func, right_func)
     local button_box = box(p.x, p.y, p.x+7, p.y+7)
-    add_clickable(button_box, left_func, right_func)
+    add_clickable(button_box, left_func, right_func, "levels")
     add(controls, {p=p, draw=draw_func})
 end
 
@@ -63,24 +63,34 @@ function draw_controls()
 end
 
 function play()
+    if level.completed then
+        reset_level()
+    end
     is_paused = false
-    update_clock = 0
+    update_logic_clock = 0
 end
 
 function pause()
     is_paused = true 
-    update_clock = 0
+    update_logic_clock = 0
 end
 
 function play_pause()
-    is_paused = not is_paused
-    update_clock = 0
+    if is_paused then 
+        play() 
+    else
+        pause()
+    end
 end
 
 function step()
-    is_paused = true
-    update_clock = 0
-    step_counter+=1
+    if level.completed then
+        reset_level()
+    else
+        is_paused = true
+        update_logic_clock = 0
+        step_counter+=1
+    end
 end
 
 function increase_speed()
@@ -94,8 +104,9 @@ function decrease_speed()
 end
 
 function next_level()
+    sfx(sounds["next"])
     pause()
-    init_level(level_idx+1)
+    change_level(level_idx+1)
 end
 
 function reset_level()
@@ -104,7 +115,8 @@ function reset_level()
 end
 
 function previous_level()
+    sfx(sounds["prev"])
     pause()
-    init_level(level_idx-1)
+    change_level(level_idx-1)
 end
 

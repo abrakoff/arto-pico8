@@ -1,33 +1,105 @@
 --robot
-function update_robot()
-    if is_on_target() then
+function init_robot()
+    robot_sprites = {pos(104,0),pos(104,8),pos(108,8)}
+    standing_robot_phaser = get_phaser(2, 1, beep_boop)
+    standing_robot_phaser.active = false
+end
+
+function update_robot_logic()
+    --where in the brain to look
+    local data_pos = pos(robot.mem, under_robot())
+    local write = get_brain(1, data_pos)
+    local memory = get_brain(2, data_pos)
+    local move = get_brain(3, data_pos)
+
+    if not level.completed then
+        -- writing
+        write_to_level(robot.p, idx_to_sprite(write))
+
+        -- memory
+        robot.mem = memory
+
+        -- animation movement
+        robot.p_last           = robot.p
+        robot.p_unwrapped      = resolve_move(move, robot.p, false)
+
+        -- logical movement
+        robot.p                = resolve_move(move, robot.p, true)
+
+        -- more animation movement
+        robot.p_last_wrapped = add_pos(robot.p_last, subtract_pos(robot.p, robot.p_unwrapped))
+
+    end
+
+    if has_completed_level() then
+        -- @HACK allow one last write for paint all level (fix for more complicated completion checking
+        write_to_level(robot.p, idx_to_sprite(get_brain(1, pos(robot.mem, under_robot())))) 
+
+        if not level.completed then sfx(sounds["win"]) end
+        level.completed = true
         pause()
         return
     end
-    --where in the brain to look
-    local data_pos = pos(robot.mem, under_robot())
-    --writing
-    local write = get_brain(1, data_pos)
-    write_to_level(robot.p, idx_to_sprite(write))
-    --memory
-    robot.mem = get_brain(2, data_pos)
-    --movement
-    local move_idx = get_brain(3, data_pos)
-    robot.p = resolve_move(move_idx, robot.p)
 end
 
-function animate_robot()
-    if robot_anim_frame == nil then robot_anim_frame = 0 end
-    robot_anim_frame = 1 + (robot_anim_frame % 2)
-    if is_paused then robot_anim_frame = 1 end
+function update_robot_display()
+    -- ensure last and unwrapped and well defined for animating
+    if robot.p_last         == nil then robot.p_last         = robot.p end
+    if robot.p_unwrapped    == nil then robot.p_unwrapped    = robot.p end
+    if robot.p_last_wrapped == nil then robot.p_last_wrapped = robot.p end
+
+    -- for fast speeds, no animation should occur
+    local logic_interval = sim_speeds[sim_speed_idx]
+    if logic_interval <= 1 then -- meaning more than one logic update per frame
+        robot.display_positions[1] = copy_pos(robot.p)
+        robot.display_positions[2] = copy_pos(robot.p)
+        return
+    end
+
+    -- [Protocol]
+    -- robot.display_positions[1]
+    -- ... animates from p_last         to p_unwrapped
+    -- robot.display_positions[2]
+    -- ... animates from p_last_wrapped to p
+
+    local p              = robot.p
+    local p_last         = robot.p_last
+    local p_unwrapped    = robot.p_unwrapped
+    local p_last_wrapped = robot.p_last_wrapped
+
+    -- debug("p_unwrapped    "..p_to_str(p_unwrapped),1)
+    -- debug("p_last         "..p_to_str(p_last),2)
+    -- debug("p              "..p_to_str(p),3)
+    -- debug("p_last_wrapped "..p_to_str(p_last_wrapped),4)
+    -- debug("dp[1]          "..p_to_str(robot.display_positions[1]),5)
+    -- debug("dp[2]          "..p_to_str(robot.display_positions[1]),6)
+
+    local s = 2/logic_interval
+    robot.display_positions[1] = step_lerp(p_unwrapped, p_last, robot.display_positions[1], s)
+    robot.display_positions[2] = step_lerp(p, p_last_wrapped, robot.display_positions[2], s)
 end
 
-function is_on_target()
-    return robot.p.x == level.target.x and robot.p.y == level.target.y
+function beep_boop()
+    if state == "levels" then
+        if standing_robot_phaser.phase == 1 then
+            sfx(sounds["beep"])
+        else
+            sfx(sounds["boop"])
+        end
+    end
 end
 
-function resolve_move(idx, old)
+function has_completed_level()
+    if level.target != nil then
+        return equal_pos(robot.p, level.target)
+    else
+        return false
+    end
+end
+
+function resolve_move(idx, old, wrapped)
     -- determines where robot should move to given obstacles
+    if wrapped == nil then wrapped = true end
 
     -- desired direction and amount 
     local desired = idx_to_move(idx)
@@ -35,41 +107,55 @@ function resolve_move(idx, old)
     local dir     = desired.dir
 
     -- desired position
-    local desired = shift(old, dir, amount)
-    local middle  = shift(old, dir,      1)
+    local level_size = pos(level.width, level.height)
+    local desired    = shift(old, dir, amount)
+    local middle     = shift(old, dir,      1)
+    local desired_wrapped = wrap(desired, level_size)
+    local middle_wrapped  = wrap(middle, level_size)
 
-    if fget(get_level_sprite(middle),0) then
+    if fget(get_level_sprite(middle_wrapped),0) then
         return old 
     end
-    if fget(get_level_sprite(desired),0) then
-        return middle
+    if fget(get_level_sprite(desired_wrapped),0) then
+        if wrapped then 
+            return middle_wrapped
+        else
+            return middle
+        end
     end
-    return desired
+    -- otherwise no obstacles
+    if wrapped then 
+        return desired_wrapped
+    else
+        return desired
+    end
 end
 
-function draw_robot()
-    -- for sprite color remapping
-    local scale = level.scale
-    local dx = scale * (robot.p.x-1)
-    local dy = scale * (robot.p.y-1)
+function draw_robot(y_offset)
+    if y_offset == nil then y_offset = 0 end
 
+    draw_with_context(function() 
+        local sprite_pos = robot_sprites[level.scale_idx]
+        local scale = level.scale
+
+        -- robot on map 
+        for dp in all(robot.display_positions) do
+            local dx = scale * (dp.x-1)
+            local dy = scale * (dp.y-1)
+            sspr(sprite_pos.x,sprite_pos.y,scale, scale,dx,dy+y_offset,scale,scale)
+        end
+    end)
+
+end
+
+function draw_with_context(func)
+    -- for sprite color remapping
+    local scale     = level.scale
     local mem_col   = idx_to_color(robot.mem)
     local floor_col = idx_to_color(under_robot())
     local data_pos  = pos(robot.mem, under_robot())
-    local write = get_brain(1,data_pos)
-
+    local write     = get_brain(1,data_pos)
     local write_col = idx_to_color(write)
-
-    -- movement indicator
-    local move_idx = get_brain(3, data_pos)
-    local next_pos = resolve_move(move_idx, robot.p)
-    local next_dx = scale * (next_pos.x-1)
-    local next_dy = scale * (next_pos.y-1)
-
-    --local move_col = idx_to_color(get_brain(3,data_pos))
-    --if flr((anim_clock % 32)/16) > 0 then move_col = 7 end
-
-    rect(next_dx+1, next_dy+1, next_dx+scale-2, next_dy+scale-2, 7)
 
     -- sprite robot
     pal(10, floor_col) -- orig yellow 
@@ -78,26 +164,22 @@ function draw_robot()
     palt(14,true)
     palt(0,false)
 
-    -- robot on map 
-    if scale == 8 then
-        sspr(104,0,8,8,dx,dy,8,8)
-    elseif scale == 4 then
-        sspr(104,8,4,4,dx,dy,4,4)
-    elseif scale == 2 then
-        sspr(108,8,2,2,dx,dy,2,2)
-    end
-
-    -- robot standing between controls
-    if robot_anim_frame == 1 then
-        sspr(72,0,16,16,55,65,16,16)
-    else
-        sspr(72+16,0,16,16,55,65,16,16)
-    end
+    func()
 
     -- reset the palette
     pal()
     palt(14,false)
     palt(0,true)
-
 end
 
+function draw_arto(p_offset, arto_scale)
+    draw_with_context(function()
+        if standing_robot_phaser.phase == 0 then
+            sspr(72,0,16,16,p_offset.x,p_offset.y,16*arto_scale,16*arto_scale)
+            if level.completed then sspr(112,8,7,4,p_offset.x+5,p_offset.y+7,7*arto_scale,4*arto_scale) end
+        else
+            sspr(72+16,0,16,16,p_offset.x,p_offset.y,16*arto_scale,16*arto_scale)
+            if level.completed then sspr(112,8,7,4,p_offset.x+5,p_offset.y+8,7*arto_scale,4*arto_scale) end
+        end
+    end)
+end
