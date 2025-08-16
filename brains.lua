@@ -12,6 +12,8 @@ function init_brains()
     brain_headers={{},{},{}}
     brain_consters={}
 
+    default_mouse_callback_r = pick_color_at_mouse
+
     hs = 4 -- header size
 
     for b=1,3 do
@@ -132,6 +134,14 @@ end
 
 function change_edit_callback(idx)
     return function() edit_idx = idx end
+end
+
+function pick_color_at_mouse()
+    local idx_at_mouse = color_to_idx(mouse.pixel_under)
+    -- ensure the pixel is a paintable color
+    if idx_at_mouse != nil then
+        edit_idx = idx_at_mouse
+    end
 end
 
 function randomize_brain(b)

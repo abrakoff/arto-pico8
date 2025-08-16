@@ -2,10 +2,13 @@
 function init_mouse()
     poke(0x5f2d, 1)
     clickables={}
+    default_mouse_callback_l=nil
+    default_mouse_callback_r=nil
     mouse={
         p=pos(0,0), 
         down=false, down_l=false, down_r=false, 
-        press=false, press_l=false, press_r=false
+        press=false, press_l=false, press_r=false,
+        pixel_under=0
     }
     update_mouse_table()
 end
@@ -45,12 +48,24 @@ function update_mouse()
         end
         c.is_hover = is_hover
     end
-    for f in all(functions_to_call) do
-        f()
+    if #functions_to_call > 0 then
+        for f in all(functions_to_call) do
+            f()
+        end
+    else
+        if mouse.press_l and default_mouse_callback_l != nil then
+            default_mouse_callback_l()
+        end
+        if mouse.press_r and default_mouse_callback_r != nil then
+            default_mouse_callback_r()
+        end
     end
+    -- debug("p "..p_to_str(mouse.p), 2)
+    -- debug("pixel_under"..mouse.pixel_under, 3)
 end
 
 function draw_mouse()
+    mouse.pixel_under = pget(mouse.p.x,mouse.p.y) -- need to compute pixel under before drawing the mouse, otherwise its always the color of the paint on the brush
     for c in all(clickables) do
         if c.state == state then
             if p_in_box(mouse.p, c.box) then
@@ -66,7 +81,7 @@ function draw_mouse()
     -- show mouse
     local write_col = idx_to_color(edit_idx)
     pal(11, write_col) -- orig green
-    sspr(109,11,3,5,mouse.p.x,mouse.p.y,3,5)
+    sspr(120,8,3,5,mouse.p.x,mouse.p.y,3,5)
     pal()
 end
 
