@@ -3,38 +3,39 @@ function init_levels()
     default_sprite=8
     target_sprite=0
     wall_sprites={42,43,58}
+    level_save_data_offset = 1 -- for dset and dget
 
     -- special_tile_phaser = get_phaser(3,16)
     level_init_data = {
         -- map_pos, scale, source, target, mem
         -- 16 small
-        {pos(0,0),   8, pos(3,4), pos(14,4), 7}, 
-        {pos(16,0),  8, pos(3,4), pos(14,4), 7}, 
-        {pos(32,0),  8, pos(3,4), pos(14,4), 7}, 
-        {pos(48,0),  8, pos(3,4), pos(14,6), 7},
+        { 1, pos(0,0),   8, pos(3,4), pos(14,4), 7}, 
+        { 2, pos(16,0),  8, pos(3,4), pos(14,4), 7}, 
+        { 3, pos(32,0),  8, pos(3,4), pos(14,4), 7}, 
+        { 4, pos(48,0),  8, pos(3,4), pos(14,6), 7},
 
-        {pos(0,8),   8, pos(3,4), pos(14,4), 1},
-        {pos(16,8),  8, pos(3,3), pos(14,5), 1},
-        {pos(32,8),  8, pos(3,6), pos(14,6), 2},
-        {pos(48,8),  8, pos(3,4), pos(15,5), 1},
+        { 5, pos(0,8),   8, pos(3,4), pos(14,4), 1},
+        { 6, pos(16,8),  8, pos(3,3), pos(14,5), 1},
+        { 7, pos(32,8),  8, pos(3,6), pos(14,6), 2},
+        { 8, pos(48,8),  8, pos(3,4), pos(15,5), 1},
 
-        {pos(0,16),  8, pos(3,4), pos(14,4), 1},
-        {pos(16,16), 8, pos(2,7), pos(15,7), 2},
-        {pos(32,16), 8, pos(3,6), pos(13,6), 1},
-        {pos(48,16), 8, pos(5,4), pos(12,4), 0},
+        { 9, pos(0,16),  8, pos(3,4), pos(14,4), 1},
+        {10, pos(16,16), 8, pos(2,7), pos(15,7), 2},
+        {11, pos(32,16), 8, pos(3,6), pos(13,6), 1},
+        {12, pos(48,16), 8, pos(5,4), pos(12,4), 0},
 
-        {pos(0,24),  8, pos(13,7), pos(5,5), 2},
-        {pos(16,24), 8, pos(5,5),  pos(12,5), 2},
-        {pos(32,24), 8, pos(4,6),  pos(14,3), 3},
-        {pos(48,24), 8, pos(4,4),  pos(13,4), 3},
+        {13, pos(0,24),  8, pos(13,7), pos(5,5), 2},
+        {14, pos(16,24), 8, pos(5,5),  pos(12,5), 2},
+        {15, pos(32,24), 8, pos(4,6),  pos(14,3), 3},
+        {16, pos(48,24), 8, pos(4,4),  pos(13,4), 3},
         -- 4 medium
-        {pos(64,0),  4, pos(2,14), pos(31,14), 2},
-        {pos(96,0),  4, pos(4,6),  pos(16,11), 3},
-        {pos(64,16), 4, pos(13,9), pos(19,9), 2}, 
-        {pos(96,16), 4, pos(4,10), pos(25,6), 0},
+        {17, pos(64,0),  4, pos(2,14), pos(31,14), 2},
+        {18, pos(96,0),  4, pos(4,6),  pos(16,11), 3},
+        {19, pos(64,16), 4, pos(13,9), pos(19,9), 2}, 
+        {20, pos(96,16), 4, pos(4,10), pos(25,6), 0},
         -- 1 large
-        {pos(0,32), 2, pos(31,16), nil, 2},
-        {pos(64,32), 2, pos(31,16), nil, 2}
+        {21, pos(0,32), 2, pos(31,16), nil, 2},
+        {22, pos(64,32), 2, pos(31,16), nil, 2}
     }
     level_titles = {
         -- small
@@ -70,13 +71,10 @@ function init_levels()
     levels = {}
 
     for l=1,#level_init_data do add(levels, load_level(level_init_data[l])) end
-
-    level_idx = 22 -- the torus sandbox
-    validate_scope()
 end
 
 function load_level(init_data)
-    local map_pos, scale, source, target, mem = unpack(init_data)
+    local idx, map_pos, scale, source, target, mem = unpack(init_data)
     local width, height = 128/scale, 64/scale
 
     local scale_idx = -1
@@ -96,7 +94,7 @@ function load_level(init_data)
     if map_pos.y < 32 then
         map_mem = 32 * 128 * 2  -- 8192
         y_offset = map_pos.y
-    else 
+        else 
         map_mem = 32 * 128      -- 4096
         y_offset = map_pos.y - 32
     end
@@ -107,15 +105,19 @@ function load_level(init_data)
         map_mem += map_mem_row_shift
     end
 
+    local level_save_data = dget(level_save_data_offset + idx - 1)
+    local was_completed_ever = (level_save_data > 0)
+
     return {
+        idx=idx,
         p=map_pos,
         scale=scale,          -- in {8,4,1}
         scale_idx=scale_idx,  -- in {1,2,3}
-        width=width, 
-        height=height, 
-        source=source, 
-        target=target, 
-        completed=false,
+        width=width,
+        height=height,
+        source=source,
+        target=target,
+        completed=was_completed_ever,
         robot={
             p = copy_pos(source),                                   -- logical position
             mem = mem,                                              -- memory/mood
@@ -125,31 +127,25 @@ function load_level(init_data)
 end
 
 function change_level(idx)
-    level_idx = 1 + ((idx-1) % #levels)
-    dset(0, level_idx)
+    desired_level_idx = 1 + ((idx-1) % #levels) -- desired_level_idx might not match level.idx now
     validate_scope()
 end
 
+function save_last_level(idx)
+    dset(0, level.idx)
+end
+
 function reload_level()
-    levels[level_idx] = load_level(level_init_data[level_idx])
+    -- reload the level
+    levels[level.idx] = load_level(level_init_data[level.idx])
     validate_scope()
 end
 
 function validate_scope()
     -- establishes global variables
-    level = levels[level_idx]
+    level = levels[desired_level_idx] -- desired_level_idx should match level.idx now
     robot = level.robot
 end
-
--- function draw_special_border(p, col, a)
---     local phase = special_tile_phaser.phase
---     local scale = level.scale
---     local l_x, l_y = (p.x-1) * scale, (p.y-1) * scale
---     local tile_box = box(l_x, l_y, l_x + scale - 1, l_y + scale - 1)
---     if phase == 0 then tile_box = feather(tile_box, a) end
---     if phase == 2 then tile_box = feather(tile_box, -a) end
---     draw_box(tile_box, col)
--- end
 
 function update_level()
     if step_counter > 0 then
@@ -191,15 +187,23 @@ function draw_level(y_offset)
     end
 
     -- target
-    if level.target != nil then 
+    if level.target != nil then
         local scale = level.scale
         local dp = pos((level.target.x-1) * scale, (level.target.y-1) * scale)
+
+        -- if level completed, change flag color
+        if level.completed then
+            -- red to green
+            pal(8,11)
+            pal(2,3)
+        end
         spr(target_sprite, dp.x, dp.y, scale/8, scale/8)
+        pal() -- reset palette if needed
     end
 
     -- title
-    local title    = level_titles[level_idx][1]
-    local subtitle = level_titles[level_idx][2]
+    local title    = level_titles[level.idx][1]
+    local subtitle = level_titles[level.idx][2]
     if #title > 0 then
         print(title, 3, 2, 0)
         print(title, 2, 1, 7)

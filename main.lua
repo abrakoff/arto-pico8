@@ -3,13 +3,13 @@
 function _init()
     cartdata("oortcloud_arto_version_1")
     state = "splash"
-    init_sound()
     init_mouse()
+    init_sound()
+    init_levels()
     init_animation()
     init_brains()
     init_robot()
     init_controls()
-    init_levels()
     init_splash()
 end
 
@@ -54,11 +54,10 @@ function change_state(new_state)
         pause()
         local stored_level_idx = dget(0)
         if stored_level_idx >= 0 and stored_level_idx <= #levels then
-            level_idx = stored_level_idx
+            change_level(stored_level_idx)
         else
-            level_idx = 1 
+            change_level(1)
         end
-        change_level(level_idx)
     end
 end
 

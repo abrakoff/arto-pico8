@@ -37,6 +37,7 @@ function update_robot_logic()
 
         if not level.completed then sfx(sounds["win"]) end
         level.completed = true
+        dset(level_save_data_offset - 1 + level.idx, 1)
         pause()
         return
     end

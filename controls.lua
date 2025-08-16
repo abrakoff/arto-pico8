@@ -51,10 +51,10 @@ end
 function draw_level_number(control)
     rectfill(control.box.l, control.box.t, control.box.r, control.box.b,6)
     rectfill(control.box.l, control.box.t, control.box.r, control.box.b-1,7)
-    if level_idx >= 10 then
-        print(level_idx, control.box.l+1, control.box.t+1, 0)
+    if level.idx >= 10 then
+        print(level.idx, control.box.l+1, control.box.t+1, 0)
     else
-        print(level_idx, control.box.l+3, control.box.t+1, 0)
+        print(level.idx, control.box.l+3, control.box.t+1, 0)
     end
 end
 
@@ -114,7 +114,8 @@ end
 function next_level()
     sfx(sounds["next"])
     pause()
-    change_level(level_idx+1)
+    change_level(level.idx+1)
+    save_last_level() -- so it can be reloaded
 end
 
 function reset_level()
@@ -125,6 +126,7 @@ end
 function previous_level()
     sfx(sounds["prev"])
     pause()
-    change_level(level_idx-1)
+    change_level(level.idx-1)
+    save_last_level() -- so it can be reloaded
 end
 

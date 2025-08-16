@@ -155,9 +155,9 @@ end
 -- access brain data
 function get_brain_sprite_pos(b, p)
 
-    local x_shift = 8 * (level_idx - 1)
+    local x_shift = 8 * (level.idx - 1)
     local y_shift = 16 + 8 * (b-1)
-    if level_idx > 10 then 
+    if level.idx > 10 then 
         x_shift -= 80
         y_shift += 24 
     end

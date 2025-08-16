@@ -1,6 +1,7 @@
 function init_splash()
     add_clickable(box(1,1,126,126), change_state_callback("levels"), change_state_callback("levels"), "splash")
     sim_speed_idx = 3 
+    change_level(22)
     play()
 end
 
