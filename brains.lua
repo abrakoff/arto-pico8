@@ -1,43 +1,67 @@
 function init_brains()
     -- positions on sprite sheet
     edit_idx=1 -- color to write for editting
-
-    brain_labels={"paint", "feel", "move"}
-
-    brain_offsets={{},{},{}} -- points to upper left corner of grid
-    brain_boxes={{{},{},{},{},{},{},{},{}},
-                 {{},{},{},{},{},{},{},{}},
-                 {{},{},{},{},{},{},{},{}}}
-
-    brain_headers={{},{},{}}
-    brain_consters={}
-
     default_mouse_callback_r = pick_color_at_mouse
+
+
+    brains={
+        {
+            label="paint",
+            offset=pos(6,88),
+            grid_boxes={{},{},{},{},{},{},{},{}},
+            header_boxes={},
+            const_box=nil,
+        },
+        {
+            label="feel",
+            offset=pos(50,88),
+            grid_boxes={{},{},{},{},{},{},{},{}},
+            header_boxes={},
+            const_box=nil,
+        },
+        {
+            label="move",
+            offset=pos(94,88),
+            grid_boxes={{},{},{},{},{},{},{},{}},
+            header_boxes={},
+            const_box=nil,
+        },
+        {
+            label="tutorial",
+            offset=pos(94,74),
+            grid_boxes={{},{},{},{},{},{},{},{}},
+            header_boxes={},
+            const_box=nil,
+        }
+    }
+
 
     hs = 4 -- header size
 
-    for b=1,3 do
+    for b=1,4 do
 
-        brain_offsets[b]=pos((b-1)*44+6,88)
-        local const_box = box(brain_offsets[b].x-hs-1, brain_offsets[b].y-hs-1, brain_offsets[b].x-2, brain_offsets[b].y-2)
-        add_clickable(const_box, change_brain_all_callback(b), nil, "levels")
-        add(brain_consters, const_box)
+        brains[b].const_box = box(brains[b].offset.x-hs-1, brains[b].offset.y-hs-1, brains[b].offset.x-2, brains[b].offset.y-2)
+        local brain_state = "levels"
+        if b == 4 then brain_state = "tutorial" end
+        -- sets brain to constant color
+        add_clickable(brains[b].const_box, change_brain_all_callback(b), nil, brain_state)
+
         for i=1,8 do     -- row
-
             -- headers for row and col 
-            local header_pos = pos(brain_offsets[b].x+4*(i-1), brain_offsets[b].y+4*(i-1))
-            local col_box = box(header_pos.x,  brain_offsets[b].y-hs-1,
-                                header_pos.x+3,brain_offsets[b].y-2)
-            local row_box = box(brain_offsets[b].x-hs-1, header_pos.y,
-                                brain_offsets[b].x-2, header_pos.y+3)
-            add(brain_headers[b], {row=row_box, col=col_box})
-            add_clickable(col_box, change_brain_col_callback(b,i-1), change_edit_callback(i-1), "levels")
-            add_clickable(row_box, change_brain_row_callback(b,i-1), change_edit_callback(i-1), "levels")
+            local header_pos = pos(brains[b].offset.x+4*(i-1), brains[b].offset.y+4*(i-1))
+            local col_box = box(header_pos.x,  brains[b].offset.y-hs-1,
+                                header_pos.x+3,brains[b].offset.y-2)
+            local row_box = box(brains[b].offset.x-hs-1, header_pos.y,
+                                brains[b].offset.x-2, header_pos.y+3)
+            add(brains[b].header_boxes, {row=row_box, col=col_box})
+
+            add_clickable(col_box, change_brain_col_callback(b,i-1), change_edit_callback(i-1), brain_state)
+            add_clickable(row_box, change_brain_row_callback(b,i-1), change_edit_callback(i-1), brain_state)
 
             -- grid
             for j=1,8 do -- col
                 local ij_offset  = pos(4*(j-1),4*(i-1))
-                local bij_offset = add_pos(brain_offsets[b], ij_offset)
+                local bij_offset = add_pos(brains[b].offset, ij_offset)
                 local d_box = box(
                         bij_offset.x,
                         bij_offset.y,
@@ -48,48 +72,52 @@ function init_brains()
                     d_box,
                     change_brain_callback(b, pos(j-1,i-1)),
                     change_edit_from_brain_callback(b, pos(j-1,i-1)),
-                    "levels"
+                    brain_state 
                 )
-                add(brain_boxes[b][i],d_box)
+                add(brains[b].grid_boxes[i],d_box)
             end
         end
     end
 end
 
-function draw_brains()
+function draw_level_brains()
     for b=1,3 do
-        -- gray background
-        rectfill(brain_offsets[b].x-hs-2,brain_offsets[b].y-hs-2,brain_offsets[b].x+32,brain_offsets[b].y+32+7, 5)
-        draw_box(brain_consters[b], 7, true)
+        draw_brain(b)
+    end
+end
 
-        -- underneath text
-        local text_pos = pos(brain_offsets[b].x, brain_offsets[b].y+32+1)
-        print_with_shadow(brain_labels[b], text_pos.x, text_pos.y, 0)
+function draw_brain(b)
+    -- gray background
+    rectfill(brains[b].offset.x-hs-2,brains[b].offset.y-hs-2,brains[b].offset.x+32,brains[b].offset.y+32+7, 5)
+    draw_box(brains[b].const_box, 7, true)
 
-        -- extra move icon
-        if b==3 then spr(15,text_pos.x+24,text_pos.y-1)  end
+    -- underneath text
+    local text_pos = pos(brains[b].offset.x, brains[b].offset.y+32+1)
+    print_with_shadow(brains[b].label, text_pos.x, text_pos.y, 0)
 
-        -- drawing headers
-        for h=1,8 do
-            local draw_color = idx_to_color(h-1)
-            draw_box(brain_headers[b][h].row, draw_color, true)
-            draw_box(brain_headers[b][h].col, draw_color, true)
+    -- extra move icon
+    if b==3 then spr(15,text_pos.x+24,text_pos.y-1)  end
+
+    -- drawing headers
+    for h=1,8 do
+        local draw_color = idx_to_color(h-1)
+        draw_box(brains[b].header_boxes[h].row, draw_color, true)
+        draw_box(brains[b].header_boxes[h].col, draw_color, true)
+    end
+
+    -- drawing grids
+    for i=1,8 do     -- row
+        for j=1,8 do -- col
+            local brain_idx = get_brain(b, pos(j-1,i-1))
+            local draw_color = idx_to_color(brain_idx) -- hack, called idx_to_c on c_to_idx
+            draw_box(brains[b].grid_boxes[i][j], draw_color, true)
         end
+    end
 
-        -- drawing grids
-        for i=1,8 do     -- row
-            for j=1,8 do -- col
-                local brain_idx = get_brain(b, pos(j-1,i-1))
-                local draw_color = idx_to_color(brain_idx) -- hack, called idx_to_c on c_to_idx
-                draw_box(brain_boxes[b][i][j], draw_color, true)
-            end
-        end
-
-        if level and robot then
-            -- indicate which part of brain is activate
-            local active_box = brain_boxes[b][under_robot()+1][robot.mem+1]
-            draw_box(feather(active_box), 6)
-        end
+    if level and robot then
+        -- indicate which part of brain is activate
+        local active_box = brains[b].grid_boxes[under_robot()+1][robot.mem+1]
+        draw_box(feather(active_box), 6)
     end
 end
 
@@ -163,12 +191,18 @@ end
 
 -- access brain data
 function get_brain_sprite_pos(b, p)
+    -- points to sprite 24 by default
+    local x_shift = 64
+    local y_shift = 8
 
-    local x_shift = 8 * (level.idx - 1)
-    local y_shift = 16 + 8 * (b-1)
-    if level.idx > 10 then 
-        x_shift -= 80
-        y_shift += 24 
+    -- standard brains depend on level and brain index
+    if brains[b].label != "tutorial" then
+        x_shift = 8 * (level.idx - 1)
+        y_shift = 16 + 8 * (b-1)
+        if level.idx > 10 then 
+            x_shift -= 80
+            y_shift += 24 
+        end
     end
 
     local sprite_pos = pos(x_shift + p.x, y_shift + p.y)

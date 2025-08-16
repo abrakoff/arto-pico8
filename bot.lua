@@ -155,7 +155,10 @@ function draw_with_context(func)
     local mem_col   = idx_to_color(robot.mem)
     local floor_col = idx_to_color(under_robot())
     local data_pos  = pos(robot.mem, under_robot())
-    local write     = get_brain(1,data_pos)
+    local write_b   = 1 -- the brain for writing
+    if state == "tutorial" then write_b = 4 end -- override for tutorial screen only
+
+    local write     = get_brain(write_b,data_pos)
     local write_col = idx_to_color(write)
 
     -- sprite robot

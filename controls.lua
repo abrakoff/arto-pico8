@@ -16,8 +16,10 @@ function init_controls()
     add_control_button(box(offset.x, offset.y, offset.x+12, offset.y+7), draw_sim_speed, increase_speed, decrease_speed)
     offset.x += 15
     add_control_button(default_control_box(offset), default_control_draw(21), reset_level)
-    offset.x += 51 
 
+    offset.x += 42 
+    add_control_button(default_control_box(offset), draw_tutorial_button, change_state_callback("tutorial"))
+    offset.x += 10
     add_control_button(default_control_box(offset), default_control_draw(20), previous_level)
     offset.x += 10
     add_control_button(box(offset.x, offset.y, offset.x+8, offset.y+7), draw_level_number)
@@ -48,9 +50,13 @@ function draw_play_pause(control)
     end
 end
 
+function draw_control_box(box)
+    rectfill(box.l, box.b, box.r, box.b, 6) -- gray 
+    rectfill(box.l, box.t, box.r, box.b-1, 7) -- white
+end
+
 function draw_level_number(control)
-    rectfill(control.box.l, control.box.t, control.box.r, control.box.b,6)
-    rectfill(control.box.l, control.box.t, control.box.r, control.box.b-1,7)
+    draw_control_box(control.box)
     if level.idx >= 10 then
         print(level.idx, control.box.l+1, control.box.t+1, 0)
     else
@@ -58,9 +64,13 @@ function draw_level_number(control)
     end
 end
 
+function draw_tutorial_button(control)
+    draw_control_box(control.box)
+    print("?", control.box.l+2, control.box.t+1, 0)
+end
+
 function draw_sim_speed(control)
-    rectfill(control.box.l, control.box.t, control.box.r, control.box.b,6)
-    rectfill(control.box.l, control.box.t, control.box.r, control.box.b-1,7)
+    draw_control_box(control.box)
     print(sim_speed_strings[sim_speed_idx], control.box.l+1, control.box.t+1, 0)
 end
 

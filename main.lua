@@ -10,6 +10,7 @@ function _init()
     init_brains()
     init_controls()
     init_splash()
+    init_tutorial()
     init_robot()
 end
 
@@ -19,6 +20,10 @@ function _update60()
     if state == "levels" then
         update_level()
     elseif state == "splash" then
+        sim_speed_idx = 3 -- override
+        update_level()
+    elseif state == "tutorial" then
+        sim_speed_idx = 1 -- overrride
         update_level()
     else
     end
@@ -32,10 +37,12 @@ function _draw()
         draw_level()
         draw_robot()
         draw_arto(pos(55,65), 1)
-        draw_brains()
+        draw_level_brains()
         draw_controls()
     elseif state == "splash" then
         draw_splash()
+    elseif state == "tutorial" then
+        draw_tutorial()
     end
     draw_mouse()
     draw_debug()
@@ -58,6 +65,10 @@ function change_state(new_state)
         else
             change_level(1)
         end
+    elseif new_state == "tutorial" then
+        sim_speed_idx = 1
+        change_level(22)
+        play()
     end
 end
 

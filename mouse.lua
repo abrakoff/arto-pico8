@@ -85,3 +85,14 @@ function draw_mouse()
     pal()
 end
 
+function draw_mouse_sprite(p, l, r) -- a computer mouse
+    spr(14,p.x,p.y)
+    -- for left and right click
+    if l then
+        sspr(126,8,2,2,p.x+1,p.y+1,2,2)
+    end
+    if r then
+        sspr(126,8,2,2,p.x+4,p.y+1,2,2)
+    end
+end
+

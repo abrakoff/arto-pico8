@@ -1,6 +1,5 @@
 function init_splash()
-    add_clickable(box(1,1,126,126), change_state_callback("levels"), change_state_callback("levels"), "splash")
-    sim_speed_idx = 3 
+    add_clickable(box(1,1,126,126), change_state_callback("tutorial"), change_state_callback("tutorial"), "splash")
     change_level(22)
     play()
 end
@@ -19,7 +18,7 @@ function draw_splash()
 
     dp.y+=70
     print("requires mouse", dp.x-2, dp.y, 7)
-    spr(14,dp.x+4*15-2,dp.y-2)
+    draw_mouse_sprite(pos(dp.x+4*15-2,dp.y-2), false, false)
     dp.x-=2
     dp.y+=8
     print("click to continue", dp.x, dp.y, 7)
