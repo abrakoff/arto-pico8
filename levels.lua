@@ -206,12 +206,10 @@ function draw_level(y_offset)
     local title    = level_titles[level.idx][1]
     local subtitle = level_titles[level.idx][2]
     if #title > 0 then
-        print(title, 3, 2, 0)
-        print(title, 2, 1, 7)
+        print_with_shadow(title, 2, 1)
     end
     if #subtitle then
-        print(subtitle, 3, 58, 0)
-        print(subtitle, 2, 57, 7)
+        print_with_shadow(subtitle, 2, 57)
     end
 end
 

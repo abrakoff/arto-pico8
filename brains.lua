@@ -64,8 +64,7 @@ function draw_brains()
 
         -- underneath text
         local text_pos = pos(brain_offsets[b].x, brain_offsets[b].y+32+1)
-        print(brain_labels[b], text_pos.x+1, text_pos.y+1, 0)
-        print(brain_labels[b], text_pos.x, text_pos.y, 7)
+        print_with_shadow(brain_labels[b], text_pos.x, text_pos.y, 0)
 
         -- extra move icon
         if b==3 then spr(15,text_pos.x+24,text_pos.y-1)  end
