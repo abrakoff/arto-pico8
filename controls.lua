@@ -73,7 +73,7 @@ function draw_controls()
 end
 
 function play()
-    if level.completed then
+    if level.completed_now then
         reset_level()
     end
     is_paused = false
@@ -94,7 +94,7 @@ function play_pause()
 end
 
 function step()
-    if level.completed then
+    if level.completed_now then
         reset_level()
     else
         is_paused = true

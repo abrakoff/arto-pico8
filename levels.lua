@@ -117,7 +117,8 @@ function load_level(init_data)
         height=height,
         source=source,
         target=target,
-        completed=was_completed_ever,
+        completed_now =false,
+        completed_ever=was_completed_ever,
         robot={
             p = copy_pos(source),                                   -- logical position
             mem = mem,                                              -- memory/mood
@@ -192,7 +193,7 @@ function draw_level(y_offset)
         local dp = pos((level.target.x-1) * scale, (level.target.y-1) * scale)
 
         -- if level completed, change flag color
-        if level.completed then
+        if level.completed_ever then
             -- red to green
             pal(8,11)
             pal(2,3)

@@ -8,9 +8,9 @@ function _init()
     init_levels()
     init_animation()
     init_brains()
-    init_robot()
     init_controls()
     init_splash()
+    init_robot()
 end
 
 function _update60()

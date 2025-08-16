@@ -12,7 +12,7 @@ function update_robot_logic()
     local memory = get_brain(2, data_pos)
     local move = get_brain(3, data_pos)
 
-    if not level.completed then
+    if not level.completed_now then
         -- writing
         write_to_level(robot.p, idx_to_sprite(write))
 
@@ -28,16 +28,16 @@ function update_robot_logic()
 
         -- more animation movement
         robot.p_last_wrapped = add_pos(robot.p_last, subtract_pos(robot.p, robot.p_unwrapped))
-
     end
 
     if has_completed_level() then
         -- @HACK allow one last write for paint all level (fix for more complicated completion checking
         write_to_level(robot.p, idx_to_sprite(get_brain(1, pos(robot.mem, under_robot())))) 
 
-        if not level.completed then sfx(sounds["win"]) end
-        level.completed = true
-        dset(level_save_data_offset - 1 + level.idx, 1)
+        if not level.completed_now then sfx(sounds["win"]) end
+        level.completed_now = true
+        level.completed_ever = true
+        dset(level_save_data_offset - 1 + level.idx, 1) -- enables completed_ever to be saved and reloaded
         pause()
         return
     end
@@ -177,10 +177,10 @@ function draw_arto(p_offset, arto_scale)
     draw_with_context(function()
         if standing_robot_phaser.phase == 0 then
             sspr(72,0,16,16,p_offset.x,p_offset.y,16*arto_scale,16*arto_scale)
-            if level.completed then sspr(112,8,7,4,p_offset.x+5,p_offset.y+7,7*arto_scale,4*arto_scale) end
+            if level.completed_now then sspr(112,8,7,4,p_offset.x+5,p_offset.y+7,7*arto_scale,4*arto_scale) end
         else
             sspr(72+16,0,16,16,p_offset.x,p_offset.y,16*arto_scale,16*arto_scale)
-            if level.completed then sspr(112,8,7,4,p_offset.x+5,p_offset.y+8,7*arto_scale,4*arto_scale) end
+            if level.completed_now then sspr(112,8,7,4,p_offset.x+5,p_offset.y+8,7*arto_scale,4*arto_scale) end
         end
     end)
 end
