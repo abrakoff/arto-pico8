@@ -1,13 +1,15 @@
--- color mapping
-function color_to_idx(col)
-    local idxmap=
-         {nil,  7,  6,  5,
-          nil,nil,nil,nil,
-            2,  4,  0,  1,
-            3,nil,nil,nil}
 
-    local idx = idxmap[col+1]
-    return idx 
+function init_colors()
+    color_to_idx_map=
+     {nil,  7,  6,  5,
+      nil,nil,nil,nil,
+        2,  4,  0,  1,
+        3,nil,nil,nil}
+    idx_to_color_map = {10,11,8,12,9,3,2,1}
+end
+
+function color_to_idx(col)
+    return color_to_idx_map[col+1]
 end
 
 function is_color_sprite(sprite_idx)
@@ -15,8 +17,7 @@ function is_color_sprite(sprite_idx)
 end
 
 function idx_to_color(idx)
-    local colmap = {10,11,8,12,9,3,2,1}
-    return colmap[idx+1]
+    return idx_to_color_map[idx+1]
 end
 
 function idx_to_sprite(idx)

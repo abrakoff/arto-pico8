@@ -28,7 +28,7 @@ function draw_tutorial()
     print("controls:", offset.x, offset.y, 7)
     offset.y += 7
     draw_mouse_sprite(offset, true, false)
-    print("edit arto's brain", offset.x+9, offset.y+1, 7)
+    print("edit arto's brains", offset.x+9, offset.y+1, 7)
     offset.y += 9
     draw_mouse_sprite(offset, false, true)
     print("change edit color", offset.x+9, offset.y+1, 7)

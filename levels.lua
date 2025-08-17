@@ -111,7 +111,7 @@ function load_level(init_data)
     return {
         idx=idx,
         p=map_pos,
-        scale=scale,          -- in {8,4,1}
+        scale=scale,          -- in {8,4,2}
         scale_idx=scale_idx,  -- in {1,2,3}
         width=width,
         height=height,
@@ -180,16 +180,27 @@ end
 
 function draw_level(y_offset)
     if y_offset == nil then y_offset = 0 end
-    -- actual level
-    local mdy = ((level.height / 64))
-    local mdx = ((level.width / 128))
-    for i = 0, 63 do
-        tline(0, i + y_offset, 128, i + y_offset, level.p.x, level.p.y + i*level.height/64, 1*level.width/128, 0)
+    local scale = level.scale
+    local mdy = (level.height / 64)
+    local mdx = (level.width / 128)
+
+    local lpx, lpy = level.p.x, level.p.y
+
+    local bytes_per_line = 64
+    local start_mem_loc = 24576 + y_offset * bytes_per_line
+    for r = 0, level.height-1 do
+        -- render a representative line
+        local sr = scale*r
+        tline(0, sr + y_offset, 127, sr + y_offset, lpx, lpy + sr * mdy, mdx, 0)
+
+        -- copy remaining rendered lines
+        for i = 1, scale-1 do -- number of lines to copy is scale - 1
+            memcpy(start_mem_loc + (sr+i) * bytes_per_line, start_mem_loc + sr * bytes_per_line, bytes_per_line) 
+        end
     end
 
     -- target
     if level.target != nil then
-        local scale = level.scale
         local dp = pos((level.target.x-1) * scale, (level.target.y-1) * scale)
 
         -- if level completed, change flag color
@@ -208,7 +219,7 @@ function draw_level(y_offset)
     if #title > 0 then
         print_with_shadow(title, 2, 1)
     end
-    if #subtitle then
+    if #subtitle > 0 then
         print_with_shadow(subtitle, 2, 57)
     end
 end

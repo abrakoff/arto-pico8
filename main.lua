@@ -5,6 +5,7 @@ function _init()
     state = "splash"
     init_mouse()
     init_sound()
+    init_colors()
     init_levels()
     init_animation()
     init_brains()
