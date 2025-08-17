@@ -2,7 +2,7 @@
 --oort cloud
 function _init()
     cartdata("oortcloud_arto_version_1")
-    clear_cart_data()
+    --clear_cart_data()
     state = "splash"
 
     init_mouse()

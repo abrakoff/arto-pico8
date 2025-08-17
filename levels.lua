@@ -7,74 +7,38 @@ function init_levels()
 
     -- special_tile_phaser = get_phaser(3,16)
     level_init_data = {
-        -- map_pos, scale, source, target, mem
-        -- 16 small
-        { 1, pos(0,0),   8, pos(3,4), pos(14,4), 7}, 
-        { 2, pos(16,0),  8, pos(3,4), pos(14,4), 7}, 
-        { 3, pos(32,0),  8, pos(3,4), pos(14,4), 7}, 
-        { 4, pos(48,0),  8, pos(3,4), pos(14,6), 7},
-
-        { 5, pos(0,8),   8, pos(3,4), pos(14,4), 1},
-        { 6, pos(16,8),  8, pos(3,3), pos(14,5), 1},
-        { 7, pos(32,8),  8, pos(3,6), pos(14,6), 2},
-        { 8, pos(48,8),  8, pos(3,4), pos(15,5), 1},
-
-        { 9, pos(0,16),  8, pos(3,4), pos(14,4), 1},
-        {10, pos(16,16), 8, pos(2,7), pos(15,7), 2},
-        {11, pos(32,16), 8, pos(3,6), pos(13,6), 1},
-        {12, pos(48,16), 8, pos(5,4), pos(12,4), 0},
-
-        {13, pos(0,24),  8, pos(13,7), pos(5,5), 2},
-        {14, pos(16,24), 8, pos(5,5),  pos(12,5), 2},
-        {15, pos(32,24), 8, pos(4,6),  pos(14,3), 3},
-        {16, pos(48,24), 8, pos(4,4),  pos(13,4), 3},
-        -- 4 medium
-        {17, pos(64,0),  4, pos(2,14), pos(31,14), 2},
-        {18, pos(96,0),  4, pos(4,6),  pos(16,11), 3},
-        {19, pos(64,16), 4, pos(13,9), pos(19,9), 2}, 
-        {20, pos(96,16), 4, pos(4,10), pos(25,6), 0},
-        -- 1 large
-        {21, pos(0,32), 2, pos(31,16), nil, 2},
-        {22, pos(64,32), 2, pos(31,16), nil, 2}
-    }
-    level_titles = {
-        -- small
-        {"move green?","... means move right"},
-        {"move green, paint red?",""},
-        {"move green, paint red, ...", "... and feel blue?"},
-        {"move blue (down) on yellow!", ""},
-
-        {"side step the wall",""},
-        {"i am stuck in a loop!", "save me!"},
-        {"rainbow road",""},
-        {"the floor is lava","... or maybe orange paint?"},
-
-        {"side step the wall?","...with feelings"},
-        {"i love red!","paint all red"},
-        {"i hate red!","paint the fence green"},
-        {"moustache city",""},
-
-        {"par 9","avoid water and sand"},
-        {"look both ways",""},
-        {"icarus",""},
-        {"segmented snake",""},
-        -- medium
-        {"the maze",""},
-        {"paint your feelings","feel your paintings"},
-        {"the real maze",""},
-        {"the yellow brick road",""},
-        -- large
-        {"",""},
-        {"",""}
+        -- map_pos, scale, source, target, mem, titles
+        {pos( 0, 0),  8, pos(3,4),  pos(14,4), 7  , {"move green?","... means move right"},               },
+        {pos(16, 0),  8, pos(3,4),  pos(14,4), 7  , {"move green, paint red?",""},                        },
+        {pos(32, 0),  8, pos(3,4),  pos(14,4), 7  , {"move green, paint red, ...", "... and feel blue?"}, },
+        {pos(48, 0),  8, pos(3,4),  pos(14,6), 7  , {"move blue (down) on yellow!", ""},                  },
+        {pos( 0, 8),  8, pos(3,4),  pos(14,4), 1  , {"side step the wall",""},                            },
+        {pos(16, 8),  8, pos(3,3),  pos(14,5), 1  , {"i am stuck in a loop!", "save me!"},                },
+        {pos(32, 8),  8, pos(5,4),  pos(12,4), 0  , {"moustache city",""},                                },
+        {pos(48, 8),  8, pos(3,4),  pos(14,4), 1  , {"side step the wall?","...with feelings"},           },
+        {pos( 0,16),  8, pos(2,7),  pos(15,2), 3 , {"wiggle",""},                                        },
+        {pos(16,16),  8, pos(3,4),  pos(15,5), 1  , {"the floor is lava","... or maybe orange paint?"},   },
+        {pos(32,16),  8, pos(2,7),  pos(15,7), 2  , {"i love red!","paint all red"},                      },
+        {pos(48,16),  8, pos(3,6),  pos(13,4), 1  , {"i hate red!","paint the fence green"},              },
+        {pos( 0,24),  8, pos(13,7), pos(5,5), 2  , {"par 9","avoid water and sand"},                     },
+        {pos(16,24),  8, pos(4,5),  pos(12,5), 2 , {"look both ways",""},                                },
+        {pos(32,24),  8, pos(4,4),  pos(13,4), 3 , {"segmented snake",""},                               },
+        {pos(48,24),  8, pos(3,7),  pos(14,7), 2  , {"rainbow road",""},                                  },
+        {pos(64,0),  4, pos(2,14), pos(31,14), 2, {"the maze",""},                                      },
+        {pos(96,0),  4, pos(4,6),  pos(16,11), 3, {"paint your feelings","feel your paintings"},        },
+        {pos(64,16), 4, pos(13,9), pos(19,9), 2 , {"the real maze",""},                                 },
+        {pos(96,16), 4, pos(4,11), pos(27,7), 0 , {"the yellow brick road",""},                         },
+        {pos(0,32),  2, pos(32,16), nil, 2      , {"",""},                                              },
+        {pos(64,32), 2, pos(32,16), nil, 2      , {"",""}                                               }
     }
 
     levels = {}
 
-    for l=1,#level_init_data do add(levels, load_level(level_init_data[l])) end
+    for l=1,#level_init_data do add(levels, load_level(l, level_init_data[l])) end
 end
 
-function load_level(init_data)
-    local idx, map_pos, scale, source, target, mem = unpack(init_data)
+function load_level(idx, init_data)
+    local map_pos, scale, source, target, mem, titles = unpack(init_data)
     local width, height = 128/scale, 64/scale
 
     local scale_idx = -1
@@ -110,6 +74,7 @@ function load_level(init_data)
 
     return {
         idx=idx,
+        titles=titles,
         p=map_pos,
         scale=scale,          -- in {8,4,2}
         scale_idx=scale_idx,  -- in {1,2,3}
@@ -139,7 +104,7 @@ end
 
 function reload_level()
     -- reload the level
-    levels[level.idx] = load_level(level_init_data[level.idx])
+    levels[level.idx] = load_level(level.idx, level_init_data[level.idx])
     validate_scope()
 end
 
@@ -215,8 +180,8 @@ function draw_level(y_offset)
     end
 
     -- title
-    local title    = level_titles[level.idx][1]
-    local subtitle = level_titles[level.idx][2]
+    local title    = level.titles[1]
+    local subtitle = level.titles[2]
     if #title > 0 then
         print_with_shadow(title, 2, 1)
     end

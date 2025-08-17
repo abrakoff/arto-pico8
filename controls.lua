@@ -133,7 +133,11 @@ end
 
 function reset_level()
     pause()
+    local was_using_random = level.use_random
     reload_level()
+    if was_using_random then
+        level.use_random = was_using_random
+    end
 end
 
 function reset_level_alt()
