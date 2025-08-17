@@ -1,6 +1,9 @@
 function init_splash()
     add_clickable(box(1,1,126,126), change_state_callback("tutorial"), change_state_callback("tutorial"), "splash")
     change_level(22)
+    if dget(0) > 0 then -- the app has been loaded before
+        randomize_all_callback()
+    end
     play()
 end
 

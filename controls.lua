@@ -15,11 +15,11 @@ function init_controls()
     offset.x += 10
     add_control_button(box(offset.x, offset.y, offset.x+12, offset.y+7), draw_sim_speed, increase_speed, decrease_speed)
     offset.x += 15
-    add_control_button(default_control_box(offset), default_control_draw(21), reset_level)
+    add_control_button(default_control_box(offset), default_control_draw(21), reset_level, reset_level_alt)
 
-    offset.x += 42 
-    add_control_button(default_control_box(offset), draw_tutorial_button, change_state_callback("tutorial"))
-    offset.x += 10
+    offset.x += 43 
+    add_control_button(box(offset.x, offset.y, offset.x+6, offset.y+7), draw_tutorial_button, change_state_callback("tutorial"))
+    offset.x += 9 
     add_control_button(default_control_box(offset), default_control_draw(20), previous_level)
     offset.x += 10
     add_control_button(box(offset.x, offset.y, offset.x+8, offset.y+7), draw_level_number)
@@ -71,7 +71,10 @@ end
 
 function draw_sim_speed(control)
     draw_control_box(control.box)
-    print(sim_speed_strings[sim_speed_idx], control.box.l+1, control.box.t+1, 0)
+    local x_offset = 0
+    local speed_string = sim_speed_strings[sim_speed_idx]
+    if #speed_string < 3 then x_offset = 2 end
+    print(speed_string, control.box.l+1+x_offset, control.box.t+1, 0)
 end
 
 function draw_controls()
@@ -131,6 +134,17 @@ end
 function reset_level()
     pause()
     reload_level()
+end
+
+function reset_level_alt()
+    -- enables fast experimentation
+    pause()
+    local was_using_random = level.use_random
+    reload_level()
+    if was_using_random then
+        randomize_all_callback()
+    end
+    play()
 end
 
 function previous_level()

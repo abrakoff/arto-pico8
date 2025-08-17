@@ -2,7 +2,9 @@
 --oort cloud
 function _init()
     cartdata("oortcloud_arto_version_1")
+    clear_cart_data()
     state = "splash"
+
     init_mouse()
     init_sound()
     init_colors()
@@ -15,13 +17,18 @@ function _init()
     init_robot()
 end
 
+function clear_cart_data()
+    -- only for testing
+    for i=0,63 do dset(i,0) end
+end
+
 function _update60()
     update_mouse()
 
     if state == "levels" then
         update_level()
     elseif state == "splash" then
-        sim_speed_idx = 3 -- override
+        sim_speed_idx = 4 -- override
         update_level()
     elseif state == "tutorial" then
         sim_speed_idx = 1 -- overrride
@@ -58,15 +65,18 @@ function change_state(new_state)
     state = new_state
 
     if new_state == "levels" then
+        reset_level() -- the splash and tutorial levels need clearing
         sim_speed_idx = 1 -- want normal speed by default
         pause()
         local stored_level_idx = dget(0)
-        if stored_level_idx >= 0 and stored_level_idx <= #levels then
+        if stored_level_idx > 0 and stored_level_idx <= #levels then
             change_level(stored_level_idx)
         else
             change_level(1)
         end
     elseif new_state == "tutorial" then
+        reset_level() -- the splash and tutorial levels need clearing
+        derandomize_all_callback()
         sim_speed_idx = 1
         change_level(22)
         play()

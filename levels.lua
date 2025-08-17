@@ -117,7 +117,8 @@ function load_level(init_data)
         height=height,
         source=source,
         target=target,
-        completed_now =false,
+        use_random=false,
+        completed_now=false,
         completed_ever=was_completed_ever,
         robot={
             p = copy_pos(source),                                   -- logical position

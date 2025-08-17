@@ -140,11 +140,13 @@ function draw_robot(y_offset)
         local scale = level.scale
 
         -- robot on map 
+        clip(0, y_offset, 128, 64)
         for dp in all(robot.display_positions) do
             local dx = scale * (dp.x-1)
             local dy = scale * (dp.y-1)
             sspr(sprite_pos.x,sprite_pos.y,scale, scale,dx,dy+y_offset,scale,scale)
         end
+        clip()
     end)
 
 end
