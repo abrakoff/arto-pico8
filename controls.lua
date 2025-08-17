@@ -2,7 +2,7 @@
 function init_controls()
     update_logic_clock = 0
     sim_speeds        = {32,16,8,4,2,1,1/2,1/4,1/8,1/16,1/32}
-    sim_speed_strings = {"/32","/16","/8","/4","/2","X1","X2","X4","X8","X16","X32"}
+    sim_speed_strings = {"▶▶","2▶▶","3▶▶","4▶▶","5▶▶","6▶▶","7▶▶","8▶▶","9▶▶","t▶▶","▶▶▶"}
     is_paused  = true
     step_counter  = 0
     sim_speed_idx = 1 
@@ -131,7 +131,8 @@ function next_level()
     save_last_level() -- so it can be reloaded
 end
 
-function reset_level()
+function reset_level(silent)
+    if not silent then sfx(sounds["reset"]) end
     pause()
     local was_using_random = level.use_random
     reload_level()

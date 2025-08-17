@@ -5,7 +5,8 @@ function init_sound()
         ["win"]=2,
         ["next"]=4,
         ["prev"]=3,
-        ["state"]=5
+        ["state"]=5,
+        ["reset"]=8
     }
 end
 

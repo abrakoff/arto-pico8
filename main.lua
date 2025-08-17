@@ -65,7 +65,7 @@ function change_state(new_state)
     state = new_state
 
     if new_state == "levels" then
-        reset_level() -- the splash and tutorial levels need clearing
+        reset_level(true) -- the splash and tutorial levels need clearing
         sim_speed_idx = 1 -- want normal speed by default
         pause()
         local stored_level_idx = dget(0)
@@ -75,7 +75,7 @@ function change_state(new_state)
             change_level(1)
         end
     elseif new_state == "tutorial" then
-        reset_level() -- the splash and tutorial levels need clearing
+        reset_level(true) -- the splash and tutorial levels need clearing
         derandomize_all_callback()
         sim_speed_idx = 1
         change_level(22)
