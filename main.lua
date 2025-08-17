@@ -1,8 +1,8 @@
---robot flasher
---oort cloud
 function _init()
-    cartdata("oortcloud_arto_version_1")
+    cartdata("ooortcloud_arto_version_1")
+    cart_image_mode = false -- for capturing title screen using F7
     --clear_cart_data()
+
     state = "splash"
 
     init_mouse()
@@ -29,6 +29,7 @@ function _update60()
         update_level()
     elseif state == "splash" then
         sim_speed_idx = 4 -- override
+        if cart_image_mode then sim_speed_idx = 11 end
         update_level()
     elseif state == "tutorial" then
         sim_speed_idx = 1 -- overrride

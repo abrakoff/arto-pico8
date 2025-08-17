@@ -1,5 +1,9 @@
 function init_splash()
-    add_clickable(box(1,1,126,126), change_state_callback("tutorial"), change_state_callback("tutorial"), "splash")
+    if not cart_image_mode then
+        add_clickable(box(1,1,126,126), change_state_callback("tutorial"), change_state_callback("tutorial"), "splash")
+    else
+        add_clickable(box(1,1,126,126), play, pause, "splash")
+    end
     change_level(22)
     if dget(0) > 0 then -- the app has been loaded before
         randomize_all_callback()
@@ -22,8 +26,10 @@ function draw_splash()
     dp.y+=70
     print("requires mouse", dp.x-2, dp.y, 7)
     draw_mouse_sprite(pos(dp.x+4*15-2,dp.y-2), false, false)
-    dp.x-=2
-    dp.y+=8
-    print("click to continue", dp.x, dp.y, 7)
+    if not cart_image_mode then
+        dp.x-=2
+        dp.y+=8
+        print("click to continue", dp.x, dp.y, 7)
+    end
 end
 
