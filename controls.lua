@@ -26,7 +26,7 @@ function init_controls()
     offset.x += 11
     add_control_button(default_control_box(offset), default_control_draw(22), next_level)
     offset.x += 10
-    add_control_button(default_control_box(offset), default_control_draw(23), randomize_all_callback)
+    add_control_button(default_control_box(offset), default_control_draw(23), randomize_all_callback, derandomize_all_callback)
 end
 
 function add_control_button(button_box, draw_func, left_func, right_func)

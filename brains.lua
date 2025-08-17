@@ -2,6 +2,7 @@ function init_brains()
     -- positions on sprite sheet
     edit_idx=1 -- color to write for editting
     default_mouse_callback_r = pick_color_at_mouse
+    using_random_brains = false
 
 
     brains={
@@ -179,14 +180,15 @@ function randomize_brain(b)
     end
 end
 
-function randomize_brain_callback(b)
-    return function () randomize_brain(b) end
-end
-
 function randomize_all_callback()
+    using_random_brains = true
     for b=1,3 do
         randomize_brain(b)
     end
+end
+
+function derandomize_all_callback()
+    using_random_brains = false
 end
 
 -- access brain data
@@ -203,6 +205,10 @@ function get_brain_sprite_pos(b, p)
             x_shift -= 80
             y_shift += 24 
         end
+    end
+    if using_random_brains then
+        x_shift = 120
+        y_shift = 40 + 8 * (b-1)
     end
 
     local sprite_pos = pos(x_shift + p.x, y_shift + p.y)
