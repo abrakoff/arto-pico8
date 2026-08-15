@@ -116,7 +116,7 @@ end
 
 function update_level()
     if step_counter > 0 then
-        phase_phaser(standing_robot_phaser)
+        if robot.mem != null_idx then phase_phaser(standing_robot_phaser) end
         update_robot_logic()
         step_counter = max(0, step_counter-1)
     end
@@ -128,11 +128,11 @@ function update_level()
             update_logic_clock = max(target_speed, 1)
 
             local steps_to_sim = 1
-            if target_speed < 1 then 
-                steps_to_sim = ceil(1/target_speed) 
+            if target_speed < 1 then
+                steps_to_sim = ceil(1/target_speed)
             end
 
-            phase_phaser(standing_robot_phaser)
+            if robot.mem != null_idx then phase_phaser(standing_robot_phaser) end
             for i=1,steps_to_sim do
                 update_robot_logic()
             end

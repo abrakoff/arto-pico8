@@ -9,7 +9,7 @@ Support a "black" do-nothing instruction value in each of the 3 brain matrices (
 - [x] Skip paint/feel/move when the null instruction is selected, instead of painting black / clearing memory / crashing on an out-of-range move (`bot.lua`)
 - [x] Playtest all three matrices (paint, feel, move) with the null instruction selected
 - [x] Visualize the null/dead feel state on Arto himself: eyes wipe to solid white, drawn dynamically over the sprite rather than baked into sprite memory (`draw_dead_eyes` in `bot.lua`, wired into the portrait, the scale-8 map sprite, and the scale-4 map sprite; the scale-2 map sprite is only 2x2 pixels total, too small for a face)
-- [ ] Stop the step/turn bouncing animation and swap in a "flatline" sound effect when Arto is feeling null
+- [x] Stop the step/turn bouncing animation and swap in a "flatline" sound effect when Arto is feeling null (`update_level` in `levels.lua` stops re-triggering `standing_robot_phaser` once dead; `bot.lua` fires a new one-shot `sfx9` "flatline" tone on the death transition)
 
 ## Tutorial Rework
 

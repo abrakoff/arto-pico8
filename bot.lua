@@ -26,6 +26,7 @@ function update_robot_logic()
 
         -- memory (null explicitly transitions to a dead state, not a no-op)
         robot.mem = memory
+        if robot.mem == null_idx then sfx(sounds["flatline"]) end
 
         -- animation movement
         robot.p_last = robot.p
