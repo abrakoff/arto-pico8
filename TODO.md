@@ -7,8 +7,9 @@ Support a "black" do-nothing instruction value in each of the 3 brain matrices (
 - [x] Add `null_idx` (black) as a valid instruction value (`color.lua`)
 - [x] Recolor the matrix corner box to black; repurpose it from "fill all cells" into a "select null instruction" swatch (`brains.lua`)
 - [x] Skip paint/feel/move when the null instruction is selected, instead of painting black / clearing memory / crashing on an out-of-range move (`bot.lua`)
-- [ ] Playtest all three matrices (paint, feel, move) with the null instruction selected
-- [ ] Decide whether the null instruction needs any UI treatment in the tutorial screen (`brain[4]`, the tutorial-only brain)
+- [x] Playtest all three matrices (paint, feel, move) with the null instruction selected
+- [x] Visualize the null/dead feel state on Arto himself: eyes wipe to solid white, drawn dynamically over the sprite rather than baked into sprite memory (`draw_dead_eyes` in `bot.lua`, wired into the portrait, the scale-8 map sprite, and the scale-4 map sprite; the scale-2 map sprite is only 2x2 pixels total, too small for a face)
+- [ ] Stop the step/turn bouncing animation and swap in a "flatline" sound effect when Arto is feeling null
 
 ## Tutorial Rework
 

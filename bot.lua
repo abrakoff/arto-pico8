@@ -149,20 +149,39 @@ end
 function draw_robot(y_offset)
     if y_offset == nil then y_offset = 0 end
 
-    draw_with_context(function() 
+    draw_with_context(function()
         local sprite_pos = robot_sprites[level.scale_idx]
         local scale = level.scale
 
-        -- robot on map 
+        -- robot on map
         clip(0, y_offset, 128, 64)
         for dp in all(robot.display_positions) do
             local dx = scale * (dp.x-1)
             local dy = scale * (dp.y-1)
             sspr(sprite_pos.x,sprite_pos.y,scale, scale,dx,dy+y_offset,scale,scale)
+            -- the scale-2 map sprite is only 2x2 pixels total, too small to render a face at all
+            if robot.mem == null_idx then
+                if scale == 8 then
+                    draw_dead_eyes(dx, dy+y_offset, 2, 5, 2, 2, 2, 1)
+                elseif scale == 4 then
+                    draw_dead_eyes(dx, dy+y_offset, 1, 3, 2, 1, 1, 1)
+                end
+            end
         end
         clip()
     end)
 
+end
+
+-- can't remap the black pupil to white with pal() without also whiting out every
+-- outline on the sprite (they share color 0), so instead paint over the exact
+-- eye pixels after the sprite itself is drawn. eye_w/eye_h is the pixel size of
+-- a single eye (2x2 on the portrait and scale-8 map sprite; a lone 1x1 pixel
+-- with no white highlight on the scale-4 map sprite)
+function draw_dead_eyes(x, y, eye1_x, eye2_x, eye_y, eye_w, eye_h, scale)
+    for ex in all({eye1_x, eye2_x}) do
+        rectfill(x+ex*scale, y+eye_y*scale, x+(ex+eye_w)*scale-1, y+(eye_y+eye_h)*scale-1, 7)
+    end
 end
 
 function draw_with_context(func)
@@ -181,7 +200,7 @@ function draw_with_context(func)
     local write_col = idx_to_color(write)
 
     -- sprite robot
-    pal(10, floor_col) -- orig yellow 
+    pal(10, floor_col) -- orig yellow
     pal(12, mem_col)   -- orig blue
     pal(11, write_col) -- orig green
     palt(14,true)
@@ -200,9 +219,11 @@ function draw_arto(p_offset, arto_scale)
         if standing_robot_phaser.phase == 0 then
             sspr(72,0,16,16,p_offset.x,p_offset.y,16*arto_scale,16*arto_scale)
             if level.completed_now then sspr(112,8,7,4,p_offset.x+5,p_offset.y+7,7*arto_scale,4*arto_scale) end
+            if robot.mem == null_idx then draw_dead_eyes(p_offset.x, p_offset.y, 5, 10, 7, 2, 2, arto_scale) end
         else
             sspr(72+16,0,16,16,p_offset.x,p_offset.y,16*arto_scale,16*arto_scale)
             if level.completed_now then sspr(112,8,7,4,p_offset.x+5,p_offset.y+8,7*arto_scale,4*arto_scale) end
+            if robot.mem == null_idx then draw_dead_eyes(p_offset.x, p_offset.y, 5, 10, 8, 2, 2, arto_scale) end
         end
     end)
 end
