@@ -42,11 +42,18 @@ function init_brains()
         brains[b].const_box = box(brains[b].offset.x-hs-1, brains[b].offset.y-hs-1, brains[b].offset.x-2, brains[b].offset.y-2)
         local brain_state = "levels"
         if b == 4 then brain_state = "tutorial" end
+
+        -- paint and feel start locked in level 1, unlocked incrementally in later levels
+        local locked = nil
+        if b == 1 or b == 2 then
+            locked = function() return level and level.idx == 1 end
+        end
+
         -- selects the null (black) instruction for painting
-        add_clickable(brains[b].const_box, change_edit_callback(null_idx), nil, brain_state)
+        add_clickable(brains[b].const_box, change_edit_callback(null_idx), nil, brain_state, locked)
 
         for i=1,8 do     -- row
-            -- headers for row and col 
+            -- headers for row and col
             local header_pos = pos(brains[b].offset.x+4*(i-1), brains[b].offset.y+4*(i-1))
             local col_box = box(header_pos.x,  brains[b].offset.y-hs-1,
                                 header_pos.x+3,brains[b].offset.y-2)
@@ -54,8 +61,8 @@ function init_brains()
                                 brains[b].offset.x-2, header_pos.y+3)
             add(brains[b].header_boxes, {row=row_box, col=col_box})
 
-            add_clickable(col_box, change_brain_col_callback(b,i-1), change_edit_callback(i-1), brain_state)
-            add_clickable(row_box, change_brain_row_callback(b,i-1), change_edit_callback(i-1), brain_state)
+            add_clickable(col_box, change_brain_col_callback(b,i-1), change_edit_callback(i-1), brain_state, locked)
+            add_clickable(row_box, change_brain_row_callback(b,i-1), change_edit_callback(i-1), brain_state, locked)
 
             -- grid
             for j=1,8 do -- col
@@ -71,7 +78,8 @@ function init_brains()
                     d_box,
                     change_brain_callback(b, pos(j-1,i-1)),
                     change_edit_from_brain_callback(b, pos(j-1,i-1)),
-                    brain_state 
+                    brain_state,
+                    locked
                 )
                 add(brains[b].grid_boxes[i],d_box)
             end
@@ -113,13 +121,19 @@ function draw_brain(b)
         end
     end
 
-    if level and robot then
+    local is_locked = (b == 1 or b == 2) and level and level.idx == 1
+    if level and robot and not is_locked then
         -- indicate which part of brain is active (nil when mem is out of the 8-value grid, e.g. a null feel state)
         local active_row = brains[b].grid_boxes[under_robot()+1]
         local active_box = active_row and active_row[robot.mem+1]
         if active_box then
             draw_box(feather(active_box), 6)
         end
+    end
+
+    -- show the lock over the grid
+    if is_locked then
+        sspr(103,43,10,15, brains[b].offset.x+11, brains[b].offset.y+8, 10, 15)
     end
 end
 

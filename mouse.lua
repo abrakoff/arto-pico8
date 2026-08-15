@@ -13,8 +13,12 @@ function init_mouse()
     update_mouse_table()
 end
 
-function add_clickable(p_box, p_lfunc, p_rfunc, state)
-    add(clickables,{box=p_box, lfunc=p_lfunc, rfunc=p_rfunc, is_hover=false, state=state})
+function add_clickable(p_box, p_lfunc, p_rfunc, state, p_locked)
+    add(clickables,{box=p_box, lfunc=p_lfunc, rfunc=p_rfunc, is_hover=false, state=state, locked=p_locked})
+end
+
+function is_locked(c)
+    return c.locked != nil and c.locked()
 end
 
 function update_mouse_table()
@@ -36,7 +40,7 @@ function update_mouse()
     local functions_to_call = {}
     for c in all(clickables) do
         local is_hover = p_in_box(mouse.p, c.box)
-        if c.state == state then
+        if c.state == state and not is_locked(c) then
             if is_hover then 
                 if mouse.press_l or (mouse.down_l and not c.is_hover) then 
                     if c.lfunc then add(functions_to_call, c.lfunc) end
@@ -67,7 +71,7 @@ end
 function draw_mouse()
     mouse.pixel_under = pget(mouse.p.x,mouse.p.y) -- need to compute pixel under before drawing the mouse, otherwise its always the color of the paint on the brush
     for c in all(clickables) do
-        if c.state == state then
+        if c.state == state and not is_locked(c) then
             if p_in_box(mouse.p, c.box) then
                 if mouse.down then
                     draw_box(feather(c.box),6)
