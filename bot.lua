@@ -6,6 +6,12 @@ function init_robot()
 end
 
 function update_robot_logic()
+    -- a null feel state is permanently dead: freeze entirely rather than reading
+    -- write/move from a mem value that no longer indexes into this level's brain data
+    if robot.mem == null_idx then
+        return
+    end
+
     --where in the brain to look
     local data_pos = pos(robot.mem, under_robot())
     local write = get_brain(1, data_pos)
@@ -14,17 +20,22 @@ function update_robot_logic()
 
     if not level.completed_now then
         -- writing
-        write_to_level(robot.p, idx_to_sprite(write))
+        if write != null_idx then
+            write_to_level(robot.p, idx_to_sprite(write))
+        end
 
-        -- memory
+        -- memory (null explicitly transitions to a dead state, not a no-op)
         robot.mem = memory
 
         -- animation movement
-        robot.p_last           = robot.p
-        robot.p_unwrapped      = resolve_move(move, robot.p, false)
-
-        -- logical movement
-        robot.p                = resolve_move(move, robot.p, true)
+        robot.p_last = robot.p
+        if move != null_idx then
+            robot.p_unwrapped = resolve_move(move, robot.p, false)
+            -- logical movement
+            robot.p            = resolve_move(move, robot.p, true)
+        else
+            robot.p_unwrapped = robot.p
+        end
 
         -- more animation movement
         robot.p_last_wrapped = add_pos(robot.p_last, subtract_pos(robot.p, robot.p_unwrapped))
@@ -32,7 +43,10 @@ function update_robot_logic()
 
     if has_completed_level() then
         -- @HACK allow one last write for paint all level (fix for more complicated completion checking
-        write_to_level(robot.p, idx_to_sprite(get_brain(1, pos(robot.mem, under_robot())))) 
+        local final_write = get_brain(1, pos(robot.mem, under_robot()))
+        if final_write != null_idx then
+            write_to_level(robot.p, idx_to_sprite(final_write))
+        end
 
         if not level.completed_now then sfx(sounds["win"]) end
         level.completed_now = true
@@ -160,7 +174,10 @@ function draw_with_context(func)
     local write_b   = 1 -- the brain for writing
     if state == "tutorial" then write_b = 4 end -- override for tutorial screen only
 
-    local write     = get_brain(write_b,data_pos)
+    local write = null_idx
+    if robot.mem != null_idx then
+        write = get_brain(write_b,data_pos)
+    end
     local write_col = idx_to_color(write)
 
     -- sprite robot

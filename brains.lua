@@ -42,8 +42,8 @@ function init_brains()
         brains[b].const_box = box(brains[b].offset.x-hs-1, brains[b].offset.y-hs-1, brains[b].offset.x-2, brains[b].offset.y-2)
         local brain_state = "levels"
         if b == 4 then brain_state = "tutorial" end
-        -- sets brain to constant color
-        add_clickable(brains[b].const_box, change_brain_all_callback(b), nil, brain_state)
+        -- selects the null (black) instruction for painting
+        add_clickable(brains[b].const_box, change_edit_callback(null_idx), nil, brain_state)
 
         for i=1,8 do     -- row
             -- headers for row and col 
@@ -88,7 +88,7 @@ end
 function draw_brain(b)
     -- gray background
     rectfill(brains[b].offset.x-hs-2,brains[b].offset.y-hs-2,brains[b].offset.x+32,brains[b].offset.y+32+7, 5)
-    draw_box(brains[b].const_box, 7, true)
+    draw_box(brains[b].const_box, idx_to_color(null_idx), true)
 
     -- underneath text
     local text_pos = pos(brains[b].offset.x, brains[b].offset.y+32+1)
@@ -114,9 +114,12 @@ function draw_brain(b)
     end
 
     if level and robot then
-        -- indicate which part of brain is activate
-        local active_box = brains[b].grid_boxes[under_robot()+1][robot.mem+1]
-        draw_box(feather(active_box), 6)
+        -- indicate which part of brain is active (nil when mem is out of the 8-value grid, e.g. a null feel state)
+        local active_row = brains[b].grid_boxes[under_robot()+1]
+        local active_box = active_row and active_row[robot.mem+1]
+        if active_box then
+            draw_box(feather(active_box), 6)
+        end
     end
 end
 
@@ -140,16 +143,6 @@ function change_brain_row_callback(b, row)
     return function() 
         for j=1,8 do
             set_brain(b, pos(j-1, row), edit_idx) 
-        end
-    end
-end
-
-function change_brain_all_callback(b)
-    return function() 
-        for i=1,8 do
-            for j=1,8 do
-                set_brain(b, pos(j-1, i-1), edit_idx) 
-            end
         end
     end
 end
@@ -216,7 +209,9 @@ end
 function get_brain(b, p)
     local sprite_pos = get_brain_sprite_pos(b,p)
     local col = sget(sprite_pos.x,sprite_pos.y)
-    return color_to_idx(col)
+    -- p.x/p.y can fall outside the 8x8 block (e.g. reading with a null mem state);
+    -- treat any color that isn't a recognized instruction as null rather than crashing
+    return color_to_idx(col) or null_idx
 end
 
 function set_brain(b, p, new)

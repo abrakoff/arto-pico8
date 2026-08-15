@@ -1,11 +1,12 @@
 
 function init_colors()
+    null_idx = 8 -- "black" / do-nothing instruction
     color_to_idx_map=
-     {nil,  7,  6,  5,
+     {null_idx,  7,  6,  5,
       nil,nil,nil,nil,
         2,  4,  0,  1,
         3,nil,nil,nil}
-    idx_to_color_map = {10,11,8,12,9,3,2,1}
+    idx_to_color_map = {10,11,8,12,9,3,2,1,0}
 end
 
 function color_to_idx(col)
