@@ -1,0 +1,526 @@
+<title>Arto Turing Machine</title>
+<style>
+  :root {
+    --bg: #FFF1E8;
+    --panel: #ffffff;
+    --panel-border: #e2d5c4;
+    --text: #1D2B53;
+    --text-dim: #6b6252;
+    --accent: #007a3d;
+    --accent-soft: rgba(0,122,61,0.14);
+    --accent-2: #d1004a;
+    --accent-2-soft: rgba(209,0,74,0.14);
+    --accent-3: #1c6fb0;
+    --accent-3-soft: rgba(28,111,176,0.16);
+    --accent-4: #a06a00;
+    --accent-4-soft: rgba(160,106,0,0.16);
+    --mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10142a;
+      --panel: #171c37;
+      --panel-border: #2e3559;
+      --text: #FFF1E8;
+      --text-dim: #a4a1c4;
+      --accent: #00e436;
+      --accent-soft: rgba(0,228,54,0.14);
+      --accent-2: #ff5c86;
+      --accent-2-soft: rgba(255,92,134,0.16);
+      --accent-3: #4fc3ff;
+      --accent-3-soft: rgba(79,195,255,0.16);
+      --accent-4: #ffec27;
+      --accent-4-soft: rgba(255,236,39,0.14);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10142a;
+    --panel: #171c37;
+    --panel-border: #2e3559;
+    --text: #FFF1E8;
+    --text-dim: #a4a1c4;
+    --accent: #00e436;
+    --accent-soft: rgba(0,228,54,0.14);
+    --accent-2: #ff5c86;
+    --accent-2-soft: rgba(255,92,134,0.16);
+    --accent-3: #4fc3ff;
+    --accent-3-soft: rgba(79,195,255,0.16);
+    --accent-4: #ffec27;
+    --accent-4-soft: rgba(255,236,39,0.14);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.55;
+  }
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(28px, 5vw, 40px);
+    margin: 10px 0 6px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font-family: var(--mono);
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 4px;
+  }
+  h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin: 0 0 10px;
+  }
+  .lede {
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 68ch;
+    margin: 0 0 4px;
+  }
+  .links {
+    display: flex;
+    gap: 16px;
+    margin-top: 18px;
+    font-family: var(--mono);
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .links a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent-soft);
+  }
+  .links a:hover { border-bottom-color: var(--accent); }
+
+  header.hero {
+    padding-bottom: 36px;
+    border-bottom: 1px solid var(--panel-border);
+    margin-bottom: 40px;
+  }
+
+  section { margin: 56px 0; }
+  section > .section-head { margin-bottom: 20px; }
+
+  p { max-width: 70ch; }
+  .lede-p { color: var(--text-dim); }
+
+  code, .chip {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  figure {
+    margin: 20px 0 0;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 18px 18px 16px;
+  }
+  figure svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow-x: visible;
+  }
+  .svg-scroll {
+    overflow-x: auto;
+  }
+  figcaption {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    margin-top: 14px;
+    max-width: 74ch;
+  }
+  figcaption .chip { margin: 0 2px; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 720px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-top: 18px;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--panel-border);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  td.file { font-family: var(--mono); color: var(--accent); white-space: nowrap; }
+  td.lines { font-variant-numeric: tabular-nums; color: var(--text-dim); white-space: nowrap; }
+  .table-wrap { overflow-x: auto; }
+
+  footer {
+    margin-top: 72px;
+    padding-top: 20px;
+    border-top: 1px solid var(--panel-border);
+    color: var(--text-dim);
+    font-size: 12.5px;
+    font-family: var(--mono);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+</style>
+
+<main>
+
+  <header class="hero">
+    <div class="eyebrow">tcfraser/arto-pico8 &middot; technical map</div>
+    <h1>Arto is a two-dimensional Turing machine wearing a puzzle game</h1>
+    <p class="lede">Arto ships as one 1,275-line PICO&#8209;8 cart. The robot's "brain" isn't code &mdash; it's paint. This is a from-source map of how the state machine, the simulation tick, and the game's cleverest trick (using the sprite sheet itself as editable memory) fit together, built for tweaking, not just admiring.</p>
+    <div class="links">
+      <a href="https://github.com/tcfraser/arto-pico8" target="_blank" rel="noopener">github.com/tcfraser/arto-pico8</a>
+      <a href="https://oortcloudchamber.itch.io/arto" target="_blank" rel="noopener">oortcloudchamber.itch.io/arto</a>
+    </div>
+  </header>
+
+  <section id="what">
+    <div class="section-head">
+      <div class="eyebrow">the mechanism</div>
+      <h2>What Arto actually is</h2>
+    </div>
+    <p class="lede-p">Strip away the paint-and-flag framing and Arto is an 8-state <em>turmite</em>: a 2D Turing machine whose tape is the level's color grid and whose head is the robot. Each tick, the machine reads two symbols &mdash; the floor color under the robot and the robot's own internal state (its "feeling," 0&ndash;7) &mdash; and looks that pair up in three 8&times;8 transition tables: what to <code>paint</code>, what to <code>feel</code> next, and which way to <code>move</code>. The puzzle is: hand-edit those three tables so the resulting walk lands on the flag. Nothing about the simulation is special-cased per level &mdash; only the tables and the starting tape differ.</p>
+  </section>
+
+  <section id="states">
+    <div class="section-head">
+      <div class="eyebrow">figure 1</div>
+      <h2>Three game states, one global switch</h2>
+      <h3>main.lua &middot; splash.lua &middot; tutorial.lua</h3>
+    </div>
+    <figure>
+      <div class="svg-scroll">
+      <svg viewBox="0 0 760 240" role="img" aria-label="State diagram: splash transitions to tutorial on any click, tutorial transitions to levels on exit click, and levels can return to tutorial via the help button.">
+        <defs>
+          <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <g font-family="ui-monospace, Consolas, monospace">
+          <!-- splash box -->
+          <rect x="20" y="60" width="200" height="110" rx="8" fill="var(--panel)" stroke="currentColor" stroke-width="1.3"/>
+          <text x="120" y="86" text-anchor="middle" font-size="13" font-weight="700" letter-spacing="0.04em">SPLASH</text>
+          <text x="120" y="106" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">draw_splash()</text>
+          <text x="120" y="120" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">demo level 22, auto-play</text>
+          <text x="120" y="134" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">brains randomized if</text>
+          <text x="120" y="147" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">dget(0) &gt; 0 (returning player)</text>
+
+          <!-- tutorial box -->
+          <rect x="280" y="60" width="200" height="110" rx="8" fill="var(--panel)" stroke="currentColor" stroke-width="1.3"/>
+          <text x="380" y="86" text-anchor="middle" font-size="13" font-weight="700" letter-spacing="0.04em">TUTORIAL</text>
+          <text x="380" y="106" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">draw_tutorial()</text>
+          <text x="380" y="120" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">forces level 22,</text>
+          <text x="380" y="134" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">brains[4] (its own table),</text>
+          <text x="380" y="147" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">sim speed locked to 1&times;</text>
+
+          <!-- levels box -->
+          <rect x="540" y="60" width="200" height="110" rx="8" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>
+          <text x="640" y="86" text-anchor="middle" font-size="13" font-weight="700" letter-spacing="0.04em" fill="var(--accent)">LEVELS</text>
+          <text x="640" y="106" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">draw_level() + draw_robot()</text>
+          <text x="640" y="120" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">+ draw_level_brains()</text>
+          <text x="640" y="134" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">+ draw_controls()</text>
+          <text x="640" y="147" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">resumes dget(0)'s level</text>
+
+          <!-- splash -> tutorial -->
+          <line x1="220" y1="105" x2="278" y2="105" stroke="currentColor" stroke-width="1.4" marker-end="url(#arrowA)"/>
+          <text x="249" y="97" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">click anywhere</text>
+
+          <!-- tutorial -> levels -->
+          <path d="M 480 92 L 538 92" stroke="currentColor" stroke-width="1.4" marker-end="url(#arrowA)" fill="none"/>
+          <text x="509" y="84" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">click &#10005; (exit box)</text>
+
+          <!-- levels -> tutorial -->
+          <path d="M 538 138 L 482 138" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#arrowA)" fill="none"/>
+          <text x="509" y="130" text-anchor="middle" font-size="9.5" fill="var(--accent)">click "?" control</text>
+        </g>
+      </svg>
+      </div>
+      <figcaption>All three states are drawn and updated from the same <code>_update60</code> / <code>_draw</code> in <code>main.lua</code>, gated on a single global <code>state</code> string. <code>change_state()</code> re-derives level data on every transition, which is why splash and tutorial can silently borrow the real level engine instead of faking their own.</figcaption>
+    </figure>
+  </section>
+
+  <section id="tick">
+    <div class="section-head">
+      <div class="eyebrow">figure 2</div>
+      <h2>What happens on one simulation tick</h2>
+      <h3>bot.lua: update_robot_logic() &middot; brains.lua: get_brain()</h3>
+    </div>
+    <figure>
+      <div class="svg-scroll">
+      <svg viewBox="0 0 980 630" role="img" aria-label="Diagram of one robot simulation tick: the robot's memory and the floor color under it form a lookup coordinate, which is read from three tables (paint, feel, move) to produce a write color, a new memory value, and a movement direction, which are then applied and the loop repeats next tick.">
+        <defs>
+          <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+          <marker id="arrowBloop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+        <g font-family="ui-monospace, Consolas, monospace">
+
+          <!-- coordinate box -->
+          <rect x="340" y="16" width="300" height="92" rx="8" fill="var(--panel)" stroke="currentColor" stroke-width="1.4"/>
+          <text x="490" y="40" text-anchor="middle" font-size="11.5" font-weight="700">this tick's lookup coordinate</text>
+          <text x="490" y="60" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">row = floor color under Arto</text>
+          <text x="490" y="74" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">(get_level_sprite(robot.p))</text>
+          <text x="490" y="92" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">col = robot.mem, 0&ndash;7 ("feeling")</text>
+
+          <!-- fan out to 3 lookup tables -->
+          <path d="M420,108 L210,158" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrowB)" fill="none"/>
+          <path d="M490,108 L510,158" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrowB)" fill="none"/>
+          <path d="M560,108 L790,158" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrowB)" fill="none"/>
+
+          <!-- PAINT table -->
+          <rect x="60" y="160" width="260" height="120" rx="8" fill="var(--accent-2-soft)" stroke="var(--accent-2)" stroke-width="1.4"/>
+          <text x="190" y="184" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--accent-2)">PAINT &mdash; brains[1]</text>
+          <text x="190" y="202" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">get_brain(1, coord)</text>
+          <text x="190" y="218" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">8&times;8 table = 64 pixels</text>
+          <text x="190" y="232" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">painted onto the sprite sheet</text>
+          <text x="190" y="246" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">(sget/sset, not a Lua table)</text>
+          <text x="190" y="264" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">&#8594; a color, 0&ndash;7</text>
+
+          <!-- FEEL table -->
+          <rect x="380" y="160" width="220" height="120" rx="8" fill="var(--accent-4-soft)" stroke="var(--accent-4)" stroke-width="1.4"/>
+          <text x="490" y="184" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--accent-4)">FEEL &mdash; brains[2]</text>
+          <text x="490" y="202" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">get_brain(2, coord)</text>
+          <text x="490" y="218" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">same layout, different cell</text>
+          <text x="490" y="232" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">of the sprite sheet</text>
+          <text x="490" y="264" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">&#8594; next robot.mem, 0&ndash;7</text>
+
+          <!-- MOVE table -->
+          <rect x="660" y="160" width="260" height="120" rx="8" fill="var(--accent-3-soft)" stroke="var(--accent-3)" stroke-width="1.4"/>
+          <text x="790" y="184" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--accent-3)">MOVE &mdash; brains[3]</text>
+          <text x="790" y="202" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">get_brain(3, coord)</text>
+          <text x="790" y="218" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">idx_to_move(): color = direction</text>
+          <!-- direction legend chips -->
+          <g font-size="8.6" fill="var(--text-dim)">
+            <rect x="700" y="228" width="9" height="9" fill="#FFEC27"/><text x="712" y="236">left</text>
+            <rect x="748" y="228" width="9" height="9" fill="#00E436"/><text x="760" y="236">right</text>
+            <rect x="700" y="242" width="9" height="9" fill="#FF004D"/><text x="712" y="250">up</text>
+            <rect x="748" y="242" width="9" height="9" fill="#29ADFF"/><text x="760" y="250">down</text>
+          </g>
+          <text x="790" y="264" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">&#8594; a direction + step size</text>
+
+          <!-- down arrows to outputs -->
+          <line x1="190" y1="280" x2="190" y2="326" stroke="var(--accent-2)" stroke-width="1.3" marker-end="url(#arrowB)"/>
+          <line x1="490" y1="280" x2="490" y2="326" stroke="var(--accent-4)" stroke-width="1.3" marker-end="url(#arrowB)"/>
+          <line x1="790" y1="280" x2="790" y2="326" stroke="var(--accent-3)" stroke-width="1.3" marker-end="url(#arrowB)"/>
+
+          <!-- output row -->
+          <rect x="60" y="330" width="260" height="52" rx="7" fill="var(--panel)" stroke="var(--panel-border)" stroke-width="1.2"/>
+          <text x="190" y="361" text-anchor="middle" font-size="11">write color</text>
+          <rect x="380" y="330" width="220" height="52" rx="7" fill="var(--panel)" stroke="var(--panel-border)" stroke-width="1.2"/>
+          <text x="490" y="361" text-anchor="middle" font-size="11">new mem</text>
+          <rect x="660" y="330" width="260" height="52" rx="7" fill="var(--panel)" stroke="var(--panel-border)" stroke-width="1.2"/>
+          <text x="790" y="361" text-anchor="middle" font-size="11">move direction</text>
+
+          <!-- down arrows to effects -->
+          <line x1="190" y1="382" x2="190" y2="424" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrowB)"/>
+          <line x1="490" y1="382" x2="490" y2="424" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrowB)"/>
+          <line x1="790" y1="382" x2="790" y2="424" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrowB)"/>
+
+          <!-- effect row -->
+          <rect x="60" y="426" width="260" height="94" rx="8" fill="var(--panel)" stroke="currentColor" stroke-width="1.3"/>
+          <text x="190" y="450" text-anchor="middle" font-size="10.5" font-weight="700">write_to_level(p, write)</text>
+          <text x="190" y="468" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">the tile under Arto is</text>
+          <text x="190" y="481" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">permanently repainted</text>
+          <text x="190" y="500" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">(this is the "tape" changing)</text>
+
+          <rect x="380" y="426" width="220" height="94" rx="8" fill="var(--panel)" stroke="currentColor" stroke-width="1.3"/>
+          <text x="490" y="450" text-anchor="middle" font-size="10.5" font-weight="700">robot.mem = new mem</text>
+          <text x="490" y="468" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">used as next tick's</text>
+          <text x="490" y="481" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">lookup column, not this one</text>
+
+          <rect x="660" y="426" width="260" height="94" rx="8" fill="var(--panel)" stroke="currentColor" stroke-width="1.3"/>
+          <text x="790" y="450" text-anchor="middle" font-size="10.5" font-weight="700">resolve_move()</text>
+          <text x="790" y="468" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">blocked by a wall flag?</text>
+          <text x="790" y="481" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">stay put &mdash; else robot.p</text>
+          <text x="790" y="500" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">updates, wrapping at edges</text>
+
+          <!-- merge to loop node -->
+          <path d="M190,520 L470,568" stroke="var(--text-dim)" stroke-width="1.1" fill="none"/>
+          <path d="M490,520 L490,568" stroke="var(--text-dim)" stroke-width="1.1" fill="none"/>
+          <path d="M790,520 L510,568" stroke="var(--text-dim)" stroke-width="1.1" fill="none"/>
+          <circle cx="490" cy="576" r="4" fill="var(--accent)"/>
+
+          <!-- loop path back to top -->
+          <path d="M 490 580 L 490 606 L 20 606 L 20 62 L 338 62" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrowBloop)"/>
+          <text x="26" y="330" font-size="10" fill="var(--accent)" transform="rotate(-90 26 330)" text-anchor="middle">next tick &mdash; update_robot_logic()</text>
+        </g>
+      </svg>
+      </div>
+      <figcaption>This runs once per logic step, gated by <code>sim_speeds</code> (from 1/32&times; up to 32&times; per frame). The three tables are read <em>before</em> anything is written, so paint/feel/move all act on the same tick's coordinate &mdash; there's no read-after-write hazard even though all three live on the same sprite sheet.</figcaption>
+    </figure>
+  </section>
+
+  <section id="memory">
+    <div class="section-head">
+      <div class="eyebrow">figure 3</div>
+      <h2>The brains aren't data structures &mdash; they're pixels</h2>
+      <h3>brains.lua: get_brain_sprite_pos() &middot; levels.lua: level_init_data</h3>
+    </div>
+    <p class="lede-p">The single cleverest decision in this codebase: a "brain" is not a Lua table. It's one 8&times;8 sprite-sheet cell, read and written a pixel at a time with <code>sget</code>/<code>sset</code>. Editing Arto's brain in the UI is literally painting on the cart's graphics memory &mdash; which is also why brains render for free with the same palette as everything else. Levels get the same treatment on the map: 22 puzzles are just rectangular regions of one shared tilemap, packed at three different zoom scales.</p>
+    <div class="two-col">
+      <figure>
+        <svg viewBox="0 0 300 330" role="img" aria-label="The PICO-8 sprite sheet is a 16 by 16 grid of 8 by 8 cells. A 10 by 3 block of cells stores the paint, feel, and move brains for levels 1 through 10, and a 6 by 3 block stores levels 11 through 16, shifted to avoid the level 1 through 10 block. All remaining cells hold ordinary sprite art.">
+          <defs>
+            <pattern id="cellgrid" width="16" height="16" patternUnits="userSpaceOnUse">
+              <rect width="16" height="16" fill="none" stroke="currentColor" stroke-opacity="0.15"/>
+            </pattern>
+          </defs>
+          <g font-family="ui-monospace, Consolas, monospace">
+            <rect x="20" y="20" width="256" height="256" fill="var(--panel)" stroke="var(--panel-border)"/>
+            <rect x="20" y="20" width="256" height="256" fill="url(#cellgrid)"/>
+            <rect x="20" y="52" width="160" height="48" fill="var(--accent-2-soft)" stroke="var(--accent-2)" stroke-width="1.2"/>
+            <text x="100" y="72" text-anchor="middle" font-size="9.5" fill="var(--accent-2)" font-weight="700">brains: levels 1&ndash;10</text>
+            <text x="100" y="86" text-anchor="middle" font-size="8" fill="var(--accent-2)">10 cols &times; 3 rows (paint/feel/move)</text>
+            <rect x="20" y="100" width="96" height="48" fill="var(--accent-2-soft)" stroke="var(--accent-2)" stroke-width="1.2"/>
+            <text x="68" y="120" text-anchor="middle" font-size="9.5" fill="var(--accent-2)" font-weight="700">levels 11&ndash;16</text>
+            <text x="68" y="134" text-anchor="middle" font-size="8" fill="var(--accent-2)">shifted down + left</text>
+            <text x="148" y="292" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">rest of sheet: Arto, the robot pawn,</text>
+            <text x="148" y="305" text-anchor="middle" font-size="9.5" fill="var(--text-dim)">UI icons, palette swatches</text>
+            <text x="148" y="20" text-anchor="middle" font-size="9" fill="var(--text-dim)" dy="-6">128&times;128px sprite sheet, 16&times;16 cells of 8&times;8</text>
+          </g>
+        </svg>
+        <figcaption>Two more single cells (not shown) hold the tutorial brain and the "randomize" scratch brains &mdash; <code>get_brain_sprite_pos()</code> just picks a different cell depending on level index and mode.</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 560 320" role="img" aria-label="One shared 128 by 64 tile map is partitioned into 22 rectangular regions: 16 small levels at 8x scale arranged in a 4 by 4 grid, 4 medium levels at 4x scale, and 2 large levels at 2x scale, all packed edge to edge with no gaps.">
+          <g font-family="ui-monospace, Consolas, monospace" font-size="10.5">
+            <!-- scale x8 block: 4x4 grid, cell 64x32 -->
+            <!-- row/col helper: x = 20 + col*64, y = 20 + row*32 -->
+            <g fill="var(--accent-3-soft)" stroke="var(--accent-3)" stroke-width="1">
+              <rect x="20" y="20" width="64" height="32"/><rect x="84" y="20" width="64" height="32"/><rect x="148" y="20" width="64" height="32"/><rect x="212" y="20" width="64" height="32"/>
+              <rect x="20" y="52" width="64" height="32"/><rect x="84" y="52" width="64" height="32"/><rect x="148" y="52" width="64" height="32"/><rect x="212" y="52" width="64" height="32"/>
+              <rect x="20" y="84" width="64" height="32"/><rect x="84" y="84" width="64" height="32"/><rect x="148" y="84" width="64" height="32"/><rect x="212" y="84" width="64" height="32"/>
+              <rect x="20" y="116" width="64" height="32"/><rect x="84" y="116" width="64" height="32"/><rect x="148" y="116" width="64" height="32"/><rect x="212" y="116" width="64" height="32"/>
+            </g>
+            <g fill="var(--text)" text-anchor="middle">
+              <text x="52" y="40">L1</text><text x="116" y="40">L2</text><text x="180" y="40">L3</text><text x="244" y="40">L4</text>
+              <text x="52" y="72">L5</text><text x="116" y="72">L6</text><text x="180" y="72">L7</text><text x="244" y="72">L8</text>
+              <text x="52" y="104">L9</text><text x="116" y="104">L10</text><text x="180" y="104">L11</text><text x="244" y="104">L12</text>
+              <text x="52" y="136">L13</text><text x="116" y="136">L14</text><text x="180" y="136">L15</text><text x="244" y="136">L16</text>
+            </g>
+
+            <!-- scale x4 block: 2x2 grid, cell 128x64, offset x=276,y=20 -->
+            <g fill="var(--accent-4-soft)" stroke="var(--accent-4)" stroke-width="1">
+              <rect x="276" y="20" width="128" height="64"/><rect x="404" y="20" width="128" height="64"/>
+              <rect x="276" y="84" width="128" height="64"/><rect x="404" y="84" width="128" height="64"/>
+            </g>
+            <g fill="var(--text)" text-anchor="middle">
+              <text x="340" y="56">L17</text><text x="468" y="56">L18</text>
+              <text x="340" y="120">L19</text><text x="468" y="120">L20</text>
+            </g>
+
+            <!-- scale x2 block: 2x1 grid, cell 256x128, offset x=20,y=148 -->
+            <g fill="var(--accent-2-soft)" stroke="var(--accent-2)" stroke-width="1">
+              <rect x="20" y="148" width="256" height="128"/><rect x="276" y="148" width="256" height="128"/>
+            </g>
+            <g fill="var(--text)" text-anchor="middle">
+              <text x="148" y="216" font-size="13" font-weight="700">L21</text>
+              <text x="148" y="232" font-size="9" fill="var(--text-dim)">torus, no walls</text>
+              <text x="404" y="216" font-size="13" font-weight="700">L22</text>
+              <text x="404" y="232" font-size="9" fill="var(--text-dim)">torus, no walls</text>
+            </g>
+          </g>
+        </svg>
+        <figcaption>
+          <span class="legend">
+            <span><span class="swatch" style="background:var(--accent-3)"></span>&times;8 scale, 16 levels</span>
+            <span><span class="swatch" style="background:var(--accent-4)"></span>&times;4 scale, 4 levels</span>
+            <span><span class="swatch" style="background:var(--accent-2)"></span>&times;2 scale, 2 levels</span>
+          </span>
+          Coordinates taken directly from <code>level_init_data</code>; the blocks tile with zero gaps because every <code>map_pos</code> was chosen to exactly fit. L21/L22 are the splash and tutorial's shared demo level (idx 22) and its wraparound twin.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="files">
+    <div class="section-head">
+      <div class="eyebrow">reference</div>
+      <h2>File map</h2>
+      <h3>1,275 lines across 14 files &middot; no build step, edit the .lua and reload the cart</h3>
+    </div>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>file</th><th>lines</th><th>owns</th></tr></thead>
+      <tbody>
+        <tr><td class="file">main.lua</td><td class="lines">89</td><td>_init / _update60 / _draw entry points; the <code>state</code> switch and <code>change_state()</code></td></tr>
+        <tr><td class="file">brains.lua</td><td class="lines">225</td><td>brain grid geometry, click handlers for editing, get_brain/set_brain (the sprite-sheet read/write)</td></tr>
+        <tr><td class="file">levels.lua</td><td class="lines">207</td><td><code>level_init_data</code> (all 22 levels), map loading via <code>reload()</code>/<code>tline()</code>, save data</td></tr>
+        <tr><td class="file">bot.lua</td><td class="lines">191</td><td>the simulation tick, movement resolution against walls, robot sprite drawing + palette swap</td></tr>
+        <tr><td class="file">controls.lua</td><td class="lines">161</td><td>play/pause/step/speed/reset UI buttons and their click bindings</td></tr>
+        <tr><td class="file">mouse.lua</td><td class="lines">98</td><td>hardware mouse polling and the generic "clickables" hit-test/dispatch list</td></tr>
+        <tr><td class="file">position.lua</td><td class="lines">91</td><td><code>pos</code>/<code>box</code> helpers, lerp-based animation math, torus wrapping</td></tr>
+        <tr><td class="file">color.lua</td><td class="lines">48</td><td>screen-color &#8596; 0&ndash;7 index maps; index &#8594; movement direction table</td></tr>
+        <tr><td class="file">tutorial.lua</td><td class="lines">43</td><td>static tutorial screen text and its own dedicated brain slot</td></tr>
+        <tr><td class="file">animation.lua</td><td class="lines">41</td><td>generic "phaser" (phase/tick) helper used for blink and beep-boop timing</td></tr>
+        <tr><td class="file">splash.lua</td><td class="lines">35</td><td>title screen, auto-plays level 22 as a live demo</td></tr>
+        <tr><td class="file">debug.lua</td><td class="lines">30</td><td>on-screen debug string overlay</td></tr>
+        <tr><td class="file">sound.lua</td><td class="lines">12</td><td>named lookup from sfx id to sound-effect slot</td></tr>
+        <tr><td class="file">text.lua</td><td class="lines">4</td><td>drop-shadow text helper</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <footer>
+    generated from a read of tcfraser/arto-pico8 &middot; source lines cited throughout point at the actual .lua files, not paraphrase
+  </footer>
+
+</main>
