@@ -6,21 +6,21 @@ function init_brains()
     brains={
         {
             label="paint",
-            offset=pos(6,88),
-            grid_boxes={{},{},{},{},{},{},{},{}},
-            header_boxes={},
-            const_box=nil,
-        },
-        {
-            label="feel",
             offset=pos(50,88),
             grid_boxes={{},{},{},{},{},{},{},{}},
             header_boxes={},
             const_box=nil,
         },
         {
-            label="move",
+            label="feel",
             offset=pos(94,88),
+            grid_boxes={{},{},{},{},{},{},{},{}},
+            header_boxes={},
+            const_box=nil,
+        },
+        {
+            label="move",
+            offset=pos(6,88),
             grid_boxes={{},{},{},{},{},{},{},{}},
             header_boxes={},
             const_box=nil,
