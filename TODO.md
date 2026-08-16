@@ -21,8 +21,13 @@ Rebuild the first levels to unlock instruction types incrementally for a smoothe
 - [x] Grey out and disable the next-level control until the current level's flag is reached; unlocks via `level.completed_now`, resets locked on every fresh visit to a level (`draw_next_level_button`/`next_level_locked` in `controls.lua`)
 - [ ] Require the player to beat level 1 before unlocking the next instruction type (paint/feel) more generally — currently level 1's lock is hardcoded, not yet a general progressive-unlock system
 - [ ] Design the unlock progression for the rest of the early levels
+- [x] Unlockable paint switches: level.switches (`{p, target}` pairs) rendered by recoloring your grey sprite 74 via `pal(6, idx_to_color(sw.target))`; painting is just the existing floor-paint mechanic, no new input needed; `has_completed_level` now also requires `switches_solved()`. Level 2 has one switch at (8,4) requiring red, and both its paint and move brains are now null everywhere except green in the bottom-right cell
 
 ## Cosmetic
 
 - [x] Give Arto a moustache (sprite edit, commit `d55d12b`)
 - [x] Fix the level-complete smile animation, which was missing the moustache — redrew the two overlapping rows of the smile overlay sprite (112,8) to include it
+
+## Before Shipping
+
+- [ ] Re-comment `clear_cart_data()` in `main.lua`'s `_init()` — currently uncommented so every relaunch starts fresh at level 1 for dev testing, but it will wipe a real player's save on every launch if left in

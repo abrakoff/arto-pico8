@@ -7,9 +7,9 @@ function init_levels()
 
     -- special_tile_phaser = get_phaser(3,16)
     level_init_data = {
-        -- map_pos, scale, source, target, mem, titles
+        -- map_pos, scale, source, target, mem, titles, switches
         {pos( 0, 0),  8, pos(3,4),  pos(14,4), 7  , {"move green?","... means move right"},               },
-        {pos(16, 0),  8, pos(3,4),  pos(14,4), 7  , {"move green, paint red?",""},                        },
+        {pos(16, 0),  8, pos(3,4),  pos(14,4), 7  , {"move green, paint red?",""}, make_switch_row(8,8,4,2) },
         {pos(32, 0),  8, pos(3,4),  pos(14,4), 2  , {"move green, feel colors", "... and paint feelings?"}, },
         {pos(48, 0),  8, pos(3,4),  pos(14,6), 7  , {"move blue (down) on yellow!", ""},                  },
         {pos( 0, 8),  8, pos(3,4),  pos(14,4), 1  , {"side step the wall",""},                            },
@@ -37,8 +37,26 @@ function init_levels()
     for l=1,#level_init_data do add(levels, load_level(l, level_init_data[l])) end
 end
 
+function make_switch_row(x1, x2, y, target)
+    -- a switch at every cell from x1 to x2 (inclusive) along row y, all requiring the same color
+    local switches = {}
+    for x=x1,x2 do
+        add(switches, {p=pos(x,y), target=target})
+    end
+    return switches
+end
+
+function switches_solved()
+    for sw in all(level.switches) do
+        if sprite_to_idx(get_level_sprite(sw.p)) != sw.target then
+            return false
+        end
+    end
+    return true
+end
+
 function load_level(idx, init_data)
-    local map_pos, scale, source, target, mem, titles = unpack(init_data)
+    local map_pos, scale, source, target, mem, titles, switches = unpack(init_data)
     local width, height = 128/scale, 64/scale
 
     local scale_idx = -1
@@ -82,6 +100,7 @@ function load_level(idx, init_data)
         height=height,
         source=source,
         target=target,
+        switches=switches or {},
         use_random=false,
         completed_now=false,
         completed_ever=was_completed_ever,
@@ -163,6 +182,15 @@ function draw_level(y_offset)
         for i = 1, scale-1 do -- number of lines to copy is scale - 1
             memcpy(start_mem_loc + (sr+i) * bytes_per_line, start_mem_loc + sr * bytes_per_line, bytes_per_line) 
         end
+    end
+
+    -- switches: overlay sprite 74 on top of the floor, recolored from grey to the switch's
+    -- target color (color 0 stays transparent so the floor shows through underneath)
+    for sw in all(level.switches) do
+        local dp = pos((sw.p.x-1) * scale, (sw.p.y-1) * scale)
+        pal(6, idx_to_color(sw.target))
+        spr(74, dp.x, dp.y, scale/8, scale/8)
+        pal()
     end
 
     -- target

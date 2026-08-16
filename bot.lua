@@ -107,7 +107,7 @@ end
 
 function has_completed_level()
     if level.target != nil then
-        return equal_pos(robot.p, level.target)
+        return equal_pos(robot.p, level.target) and switches_solved()
     else
         return false
     end
