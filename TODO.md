@@ -24,4 +24,4 @@ Rebuild the first levels to unlock instruction types incrementally for a smoothe
 ## Cosmetic
 
 - [x] Give Arto a moustache (sprite edit, commit `d55d12b`)
-- [ ] Fix the level-complete smile animation, which is missing the moustache — see `draw_arto` in `bot.lua`, the `sspr(112,8,7,4,...)` overlay drawn when `level.completed_now`
+- [x] Fix the level-complete smile animation, which was missing the moustache — redrew the two overlapping rows of the smile overlay sprite (112,8) to include it
