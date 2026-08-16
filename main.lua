@@ -1,7 +1,7 @@
 function _init()
     cartdata("ooortcloud_arto_version_1")
     cart_image_mode = false -- for capturing title screen using F7
-    --clear_cart_data()
+    clear_cart_data() -- dev-only: keeps every relaunch starting fresh at level 1 while we're testing
 
     state = "splash"
 
