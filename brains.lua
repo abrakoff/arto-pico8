@@ -119,7 +119,9 @@ function draw_brain(b)
     local text_pos = pos(brains[b].offset.x, brains[b].offset.y+32+1)
     print_with_shadow(brains[b].label, text_pos.x, text_pos.y, 0)
 
-    -- extra move icon
+    -- extra brain icon
+    if b==1 then sspr(120,8,3,5,text_pos.x+26,text_pos.y,3,5) end -- paintbrush
+    if b==2 then spr(59,text_pos.x+24,text_pos.y-1) end -- heart
     if b==3 then spr(15,text_pos.x+24,text_pos.y-1)  end
 
     -- drawing headers
