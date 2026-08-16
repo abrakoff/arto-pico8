@@ -10,7 +10,15 @@ function init_levels()
         -- map_pos, scale, source, target, mem, titles, switches
         {pos( 0, 0),  8, pos(3,4),  pos(14,4), 7  , {"move green?","... means move right"},               },
         {pos(16, 0),  8, pos(3,4),  pos(14,4), 7  , {"move green, paint red?",""}, make_switch_row(8,8,4,2) },
-        {pos(32, 0),  8, pos(3,4),  pos(14,4), 2  , {"move green, feel colors", "... and paint feelings?"}, },
+        {pos(32, 0),  8, pos(3,4),  pos(14,4), 2  , {"move green, feel colors", "... and paint feelings?"},
+            { -- orange, green, blue, dark red, orange (left to right)
+                {p=pos(4,4),  target=4},
+                {p=pos(6,4),  target=1},
+                {p=pos(8,4),  target=3},
+                {p=pos(10,4), target=6},
+                {p=pos(12,4), target=4},
+            }
+        },
         {pos(48, 0),  8, pos(3,4),  pos(14,6), 7  , {"move blue (down) on yellow!", ""},                  },
         {pos( 0, 8),  8, pos(3,4),  pos(14,4), 1  , {"side step the wall",""},                            },
         {pos(16, 8),  8, pos(3,3),  pos(14,5), 1  , {"i am stuck in a loop!", "save me!"},                },
@@ -37,10 +45,11 @@ function init_levels()
     for l=1,#level_init_data do add(levels, load_level(l, level_init_data[l])) end
 end
 
-function make_switch_row(x1, x2, y, target)
-    -- a switch at every cell from x1 to x2 (inclusive) along row y, all requiring the same color
+function make_switch_row(x1, x2, y, target, step)
+    -- a switch every `step` cells from x1 to x2 (inclusive) along row y, all requiring the same color
+    step = step or 1
     local switches = {}
-    for x=x1,x2 do
+    for x=x1,x2,step do
         add(switches, {p=pos(x,y), target=target})
     end
     return switches

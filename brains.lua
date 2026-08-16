@@ -3,6 +3,13 @@ function init_brains()
     edit_idx=1 -- color to write for editting
     default_mouse_callback_r = pick_color_at_mouse
 
+    -- which brains (1=paint, 2=feel, 3=move) are locked on each level; levels not listed have nothing locked
+    level_brain_locks = {
+        [1] = {1,2},
+        [2] = {2},
+        [3] = {2,3},
+    }
+
     brains={
         {
             label="paint",
@@ -43,9 +50,9 @@ function init_brains()
         local brain_state = "levels"
         if b == 4 then brain_state = "tutorial" end
 
-        -- paint and feel start locked, unlocked incrementally in later levels
+        -- paint, feel, and move start locked, unlocked incrementally in later levels
         local locked = nil
-        if b == 1 or b == 2 then
+        if b == 1 or b == 2 or b == 3 then
             locked = function() return is_brain_locked(b) end
         end
 
@@ -89,8 +96,11 @@ end
 
 function is_brain_locked(b)
     if not level then return false end
-    if b == 1 then return level.idx == 1 end     -- paint unlocks after level 1
-    if b == 2 then return level.idx <= 2 end      -- feel unlocks after level 2
+    local locks = level_brain_locks[level.idx]
+    if not locks then return false end
+    for locked_b in all(locks) do
+        if locked_b == b then return true end
+    end
     return false
 end
 
@@ -128,13 +138,16 @@ function draw_brain(b)
         end
     end
 
-    local is_locked = (b == 1 or b == 2) and is_brain_locked(b)
-    if level and robot and not is_locked then
+    local is_locked = is_brain_locked(b)
+    if level and robot then
         -- indicate which part of brain is active (nil when mem is out of the 8-value grid, e.g. a null feel state)
+        -- drawn 1px smaller (no feathering) while locked, so it still reads underneath the lock icon
         local active_row = brains[b].grid_boxes[under_robot()+1]
         local active_box = active_row and active_row[robot.mem+1]
         if active_box then
-            draw_box(feather(active_box), 6)
+            local feather_amount = 1
+            if is_locked then feather_amount = 0 end
+            draw_box(feather(active_box, feather_amount), 6)
         end
     end
 
