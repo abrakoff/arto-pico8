@@ -17,6 +17,7 @@ Rebuild the first levels to unlock instruction types incrementally for a smoothe
 
 - [x] Reorder the brain matrices to move, paint, feel left to right, so move (unlocked first) reads leftmost (`brains.lua`)
 - [x] Lock paint and feel initially; only move is unlocked in level 1 — lock sprite overlay, clicks disabled, selector square hidden (`brains.lua`, `mouse.lua`)
+- [x] Progressive unlock: paint unlocks after level 1, feel stays locked through level 2 (`is_brain_locked` in `brains.lua`)
 - [x] Grey out and disable the next-level control until the current level's flag is reached; unlocks via `level.completed_now`, resets locked on every fresh visit to a level (`draw_next_level_button`/`next_level_locked` in `controls.lua`)
 - [ ] Require the player to beat level 1 before unlocking the next instruction type (paint/feel) more generally — currently level 1's lock is hardcoded, not yet a general progressive-unlock system
 - [ ] Design the unlock progression for the rest of the early levels

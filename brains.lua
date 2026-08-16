@@ -43,10 +43,10 @@ function init_brains()
         local brain_state = "levels"
         if b == 4 then brain_state = "tutorial" end
 
-        -- paint and feel start locked in level 1, unlocked incrementally in later levels
+        -- paint and feel start locked, unlocked incrementally in later levels
         local locked = nil
         if b == 1 or b == 2 then
-            locked = function() return level and level.idx == 1 end
+            locked = function() return is_brain_locked(b) end
         end
 
         -- selects the null (black) instruction for painting
@@ -87,6 +87,13 @@ function init_brains()
     end
 end
 
+function is_brain_locked(b)
+    if not level then return false end
+    if b == 1 then return level.idx == 1 end     -- paint unlocks after level 1
+    if b == 2 then return level.idx <= 2 end      -- feel unlocks after level 2
+    return false
+end
+
 function draw_level_brains()
     for b=1,3 do
         draw_brain(b)
@@ -121,7 +128,7 @@ function draw_brain(b)
         end
     end
 
-    local is_locked = (b == 1 or b == 2) and level and level.idx == 1
+    local is_locked = (b == 1 or b == 2) and is_brain_locked(b)
     if level and robot and not is_locked then
         -- indicate which part of brain is active (nil when mem is out of the 8-value grid, e.g. a null feel state)
         local active_row = brains[b].grid_boxes[under_robot()+1]
