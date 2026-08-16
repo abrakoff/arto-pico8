@@ -15,10 +15,11 @@ Support a "black" do-nothing instruction value in each of the 3 brain matrices (
 
 Rebuild the first levels to unlock instruction types incrementally for a smoother onboarding experience.
 
-- [ ] Lock paint and feel initially; only move is unlocked in tutorial level 1
-- [ ] Require the player to beat level 1 before unlocking the next instruction type
+- [x] Reorder the brain matrices to move, paint, feel left to right, so move (unlocked first) reads leftmost (`brains.lua`)
+- [x] Lock paint and feel initially; only move is unlocked in level 1 — lock sprite overlay, clicks disabled, selector square hidden (`brains.lua`, `mouse.lua`)
+- [x] Grey out and disable the next-level control until the current level's flag is reached; unlocks via `level.completed_now`, resets locked on every fresh visit to a level (`draw_next_level_button`/`next_level_locked` in `controls.lua`)
+- [ ] Require the player to beat level 1 before unlocking the next instruction type (paint/feel) more generally — currently level 1's lock is hardcoded, not yet a general progressive-unlock system
 - [ ] Design the unlock progression for the rest of the early levels
-- [ ] Update `levels.lua` / `tutorial.lua` to gate matrix editing by unlock state
 
 ## Cosmetic
 

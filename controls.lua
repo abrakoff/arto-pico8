@@ -19,18 +19,19 @@ function init_controls()
 
     offset.x += 43 
     add_control_button(box(offset.x, offset.y, offset.x+6, offset.y+7), draw_tutorial_button, change_state_callback("tutorial"))
-    offset.x += 9 
+    offset.x += 9
     add_control_button(default_control_box(offset), default_control_draw(20), previous_level)
     offset.x += 10
     add_control_button(box(offset.x, offset.y, offset.x+8, offset.y+7), draw_level_number)
     offset.x += 11
-    add_control_button(default_control_box(offset), default_control_draw(22), next_level)
+    -- next level starts locked (greyed out) each visit; only unlocks once the flag is reached
+    add_control_button(default_control_box(offset), draw_next_level_button, next_level, nil, next_level_locked)
     offset.x += 10
     add_control_button(default_control_box(offset), default_control_draw(23), randomize_all_callback, derandomize_all_callback)
 end
 
-function add_control_button(button_box, draw_func, left_func, right_func)
-    add_clickable(button_box, left_func, right_func, "levels")
+function add_control_button(button_box, draw_func, left_func, right_func, locked)
+    add_clickable(button_box, left_func, right_func, "levels", locked)
     add(controls, {box=button_box, draw=draw_func})
 end
 
@@ -61,6 +62,18 @@ function draw_level_number(control)
         print(level.idx, control.box.l+1, control.box.t+1, 0)
     else
         print(level.idx, control.box.l+3, control.box.t+1, 0)
+    end
+end
+
+function next_level_locked()
+    return level and not level.completed_now
+end
+
+function draw_next_level_button(control)
+    if next_level_locked() then
+        spr(76, control.box.l, control.box.t) -- greyed out
+    else
+        spr(22, control.box.l, control.box.t)
     end
 end
 
